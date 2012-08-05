@@ -1,3 +1,10 @@
 .svn
 .DS_Store
-
+ant
+asdoc
+bin
+dist
+runtimes
+templates
+history
+classes
