@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 2h
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests that an ECMA ActionScript Array with mixed named
+and ordinal properties can be parsed from an AMFX stream.
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array ecma="true" length="1">
+            <item name="prop0">
+                <int>-2000</int>
+            </item>
+            <double>2000.0</double>
+        </array>
+    </body>
+</amfx>

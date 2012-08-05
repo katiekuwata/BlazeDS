@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC "-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN" "http://java.sun.com/dtd/application_1_3.dtd">
+
+   <application id="Application_ID">
+      <display-name>eqa_war</display-name>
+      <module id="WebModule_1129045405656">
+         <web>
+            <web-uri>eqa</web-uri>
+            <context-root>eqa</context-root>
+         </web>
+      </module>
+   </application>

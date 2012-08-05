@@ -1,0 +1,15 @@
+<data>
+	<positiveNumberWithZero>01</positiveNumberWithZero>
+	<negativeNumberWithZero>-0234</negativeNumberWithZero> 
+	<positiveNumberWithoutZero>20201</positiveNumberWithoutZero> 
+	<negativeNumberWithoutZero>-2345</negativeNumberWithoutZero>
+	
+	<booleanTrue>true</booleanTrue>
+	<booleanFalse>false</booleanFalse>
+	<booleanWithSpaceBefore> true</booleanWithSpaceBefore>
+	<booleanWithSpaceAfter>true </booleanWithSpaceAfter>
+	
+	<simpleString>simple</simpleString>
+	<stringWithAttributes detail="more info">less simple</stringWithAttributes>
+	<numberEndingWithE>75394E</numberEndingWithE>
+</data>

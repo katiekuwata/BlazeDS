@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 10a
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests simple empty, anonymous object can be parsed
+from an AMFX formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array length="6">
+            <object/>
+            <object></object>
+            <object>
+
+            </object>
+            <object>
+                <traits/>
+            </object>
+            <object>
+                <traits></traits>
+            </object>
+            <object>
+                <traits>
+
+                </traits>
+            </object>
+        </array>
+    </body>
+</amfx>

@@ -1,0 +1,12 @@
+
+public class ServicesAndPorts1 {
+
+  public int echoInteger(int val){
+	return val;
+  }
+
+  public String echoName(){
+	return "ServicesAndPorts1";
+  }
+
+}

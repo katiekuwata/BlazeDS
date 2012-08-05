@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-common"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/jgroups.jar"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/xalan.jar"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/jms.jar"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/servlet.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

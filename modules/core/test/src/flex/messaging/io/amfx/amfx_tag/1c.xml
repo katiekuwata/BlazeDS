@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 1c
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests that an invalid AMFX version will be caught while
+parsing an AMFX formatted stream.
+
+ -->
+<amfx ver="Invalid" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <null />
+    </body>
+</amfx>

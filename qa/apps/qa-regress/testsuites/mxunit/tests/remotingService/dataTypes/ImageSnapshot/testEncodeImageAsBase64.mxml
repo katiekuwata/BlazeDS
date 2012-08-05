@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<mx:Application  xmlns:mx="http://www.adobe.com/2006/mxml"
+        xmlns:qa="http://www.adobe.com/2006/flexqa"
+        creationComplete="run()">
+
+    <mx:Label fontSize="16" text="mxunit test: testEncodeImageAsBase64" />
+    <qa:MXUnit id="testBase64NotNull" timeout="3000"/>
+    <qa:MXUnit id="testBase64Length" timeout="3000"/>
+
+    <mx:Script>
+    <![CDATA[
+    import mx.collections.ArrayCollection;
+    import mx.core.IFlexDisplayObject;
+    import mx.graphics.ImageSnapshot;
+
+    [Bindable]
+    public var earnings:ArrayCollection = new ArrayCollection([
+    {Year:2003, Earnings:1.59},
+    {Year:2004, Earnings:1.85},
+    {Year:2005, Earnings:2.01},
+    {Year:2006, Earnings:2.59}]);
+
+    [Bindable]
+    public var earningsImage:String;
+
+    private function run():void
+    {
+        var dpi:Number = Capabilities.screenDPI * 2;
+        var snapshot:ImageSnapshot = ImageSnapshot.captureImage(earningsChart, dpi);
+
+        earningsImage = ImageSnapshot.encodeImageAsBase64(snapshot);
+
+        testBase64NotNull.doAssert(earningsImage != null, "earningsImage should not be null");
+        testBase64Length.doAssert(earningsImage.length > 0, "earningsImage.length should be > 0");
+    }
+
+    ]]>
+    </mx:Script>
+
+    <mx:Panel id="panel" title="Company Inc." height="100%" width="100%" 
+        paddingTop="10" paddingLeft="10" paddingRight="10">
+        <mx:Label id="earningsLabel" text="Annual Earnings" />
+        <mx:ColumnChart id="earningsChart" height="200" width="400"
+            paddingLeft="5" paddingRight="5" 
+            showDataTips="true" dataProvider="{earnings}">
+            <mx:horizontalAxis>
+                <mx:CategoryAxis categoryField="Year"/>
+            </mx:horizontalAxis>
+            <mx:series>
+                <mx:ColumnSeries xField="Year" yField="Earnings" displayName="Earnings"/>
+            </mx:series>
+        </mx:ColumnChart>
+    </mx:Panel>
+
+</mx:Application>

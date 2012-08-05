@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" width="1000" height="900">
+    <mx:Script>
+        <![CDATA[
+            import mx.collections.SortField;
+            import mx.collections.Sort;
+    		import mx.controls.Alert;
+    		import mx.rpc.events.FaultEvent;
+    		import mx.rpc.AsyncResponder;
+    		import mx.rpc.IResponder;
+    		import mx.rpc.AsyncToken;
+    		import mx.collections.ArrayCollection;
+    		import mx.rpc.events.ResultEvent;
+    		
+			private function messageClientsResultHandler(event:ResultEvent, token:Object):void 
+			{
+				messageClientsList.dataProvider = event.result;   
+			} 
+            private function faultHandler(event:FaultEvent, token:Object):void 
+            {
+            	Alert.show(event.fault.faultString);
+            }
+            private function getMessageClients():void 
+            {
+            	var token:AsyncToken = cm.getMessageClients();
+            	var responder:IResponder = new AsyncResponder(messageClientsResultHandler, faultHandler);
+                token.addResponder(responder); 
+            }
+			private function invalidateMessageClientForSubscriber():void
+			{				
+				cm.invalidateMessageClientForSubscriber(messageClientsList.selectedItem);
+				getMessageClients();
+			}
+			private function invalidateFlexClientForSubscriber():void 
+			{
+				cm.invalidateFlexClientForSubscriber(messageClientsList.selectedItem);
+				getMessageClients();
+			}
+			private function invalidateFlexSessionForSubscriber():void
+			{
+				cm.invalidateFlexSessionForSubscriber(messageClientsList.selectedItem);
+				getMessageClients();
+			}
+        ]]>
+    </mx:Script>
+    <mx:Label text="Client Manager" fontSize="16"/>
+		<mx:VBox borderStyle="solid" borderThickness="2" width="400">
+			<mx:Label text="MessageClients"/>
+			<mx:List id="messageClientsList" width="300"/>                            
+			<mx:HBox>                               
+				<mx:Button click="getMessageClients()" label="Get MessageClients."/>
+			</mx:HBox>
+		</mx:VBox>
+	<mx:VBox borderStyle="solid" borderThickness="2" width="400">
+		<mx:Label text="Operations for selected MessageClient"/>
+		<mx:Button click="invalidateMessageClientForSubscriber();" label="Invalidate MessageClient"/>
+		<mx:Button click="invalidateFlexClientForSubscriber()" label="Invalidate FlexClient"/>
+		<mx:Button click="invalidateFlexSessionForSubscriber()" label="Invalidate FlexSession"/>
+	</mx:VBox>
+
+    <mx:RemoteObject destination="ClientManager" id="cm"/>     
+    <mx:TraceTarget level="0"/>
+</mx:Application>

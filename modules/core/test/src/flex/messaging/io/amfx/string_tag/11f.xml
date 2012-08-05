@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 11f
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests the empty string can be parsed from an AMFX
+formatted stream and ensures that empty strings are
+not counted in the string reference table.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array length="5">
+            <string />
+            <string></string>
+            <string>Locus classicus</string>
+            <string id="0" />
+            <string id="0" />
+        </array>
+    </body>
+</amfx>

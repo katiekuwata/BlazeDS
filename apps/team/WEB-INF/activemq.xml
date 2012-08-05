@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+	<broker useJmx="true" persistent="false" xmlns="http://activemq.org/config/1.0" brokerName="teamMQ">
+		<transportConnectors>
+			<transportConnector name="default" uri="tcp://localhost:61916"/>
+		</transportConnectors>
+	</broker>
+</beans>

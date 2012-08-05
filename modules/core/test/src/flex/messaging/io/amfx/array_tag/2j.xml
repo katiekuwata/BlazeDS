@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 2j
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests that an invalid array length will be caught
+in an AMFX stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array length="Invalid" />
+    </body>
+</amfx>

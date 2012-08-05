@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+	<broker useJmx="true" persistent="false" xmlns="http://activemq.org/config/1.0" brokerName="qaRegressAMQ">
+		<transportConnectors>
+			<transportConnector name="default" uri="tcp://localhost:61716"/>
+		</transportConnectors>
+	</broker>
+</beans>

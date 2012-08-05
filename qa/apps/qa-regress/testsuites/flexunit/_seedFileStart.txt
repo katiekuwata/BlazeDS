@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" initialize="appReady()">
+
+    <mx:Script>
+    <![CDATA[
+        import mx.logging.*;
+        import mx.logging.targets.*;
+            
+        import flexunit.framework.*;
+        import flexunit.ext.*;
+    
+        public function appReady():void {
+            // add logging
+            /*
+            var target:TraceTarget = new TraceTarget();
+            target.includeLevel = true;
+            target.filters = ["mx.messaging.*", "mx.rpc.*"];
+            Log.addTarget(target);        
+            */
+                    
+            URLParamSingleton.parseURL(Application.application.url);
+            QATestRunner.junitRunner = true;
+
+            var ts:TestSuite=new TestSuite();

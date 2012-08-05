@@ -1,0 +1,99 @@
+<!--
+/*************************************************************************
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ **************************************************************************/
+
+-->
+<html>
+<head>
+<title>Flex Object Messaging through LCDS FABridge</title>
+<style>
+body { margin: 10px;
+ overflow:hidden }
+
+textarea {
+	font-size: 1em;
+}
+</style>
+<script type="text/javascript" src="../includes/js/FABridge.js"></script>
+<script type="text/javascript" src="../includes/js/FDMSLib.js"></script>
+
+</head>
+
+<p>The page tests sending/recieving a simple Object message through LCDS-FABridge and JMSAdapter using a polling amf channel</p>
+<p>Feature tested: 
+<li>Producer.send, Producer.setDestination,</li>
+<li>Consumer.setDestination, Consumer.subscribe, Consumer.addEventListener;</li>
+<li>AsyncMessage.setBody</li>
+
+<body scroll='no' style="font-size:.9em;">
+<script language="javascript">
+    var p;
+    var c;
+
+    function fdmsLibraryReady()
+    {        
+        log("library ready");
+				
+		p = new Producer();
+        p.setDestination("MyJMSObjectTopic");
+        
+		c = new Consumer();
+        c.setDestination("MyJMSObjectTopic");        
+        c.addEventListener("message", messageHandler);				
+        c.subscribe();		
+    }
+
+    function sendChat()
+    {        
+       
+		var m = new AsyncMessage();
+        var body = {a:"abc"};			
+        m.setBody(body);
+        p.send(m);
+		log("Send message: body=" + body + " a=" + body.a);
+    }
+
+    function messageHandler(event)
+    {
+		var body = event.getMessage().getBody();
+        log("Received message(" + typeof(body) + "): body=" + body + " a=" + body.a);
+    }
+   	
+	function log(s){
+		var myta = document.getElementById("ta");
+		myta.appendChild(document.createTextNode(s + "\n" ));
+	}
+
+</script>
+
+<script>
+    FDMSLibrary.load("../includes/swf/FDMSBridge.swf", fdmsLibraryReady);
+</script>
+
+<div style="width:1024px">
+<div style="margin-bottom: 20px;float:left;padding: 20px;">
+	<button onClick="sendChat();return false;">Send</button>
+    <br />
+    <textarea name="ta" cols="100" rows="30" id="ta" ></textarea>
+</div>
+</div>
+</body>
+
+
+</html>

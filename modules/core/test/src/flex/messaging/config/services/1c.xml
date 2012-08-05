@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1c
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/27/2005
+
+Tests a service with a destination that relies on both default channels
+and default adapters can be parsed from a Flex Data Services configuration file.
+ -->
+<services-config xmlns="http://www.adobe.com/2006/flex-enterprise-services">
+
+    <services>
+
+        <service id="foo-service"
+            class="flex.messaging.services.FooService"
+            messageTypes="flex.messaging.messages.FooMessage">
+
+            <adapters>
+                <adapter-definition class="flex.messaging.services.foo.FooAdapter" id="foo" default="true" />
+            </adapters>
+
+            <default-channels>
+                <channel ref="foo-channel" />
+            </default-channels>
+
+            <destination id="foo-dest">
+                <properties>
+                    <fooString>fooValue</fooString>
+                </properties>
+            </destination>
+
+        </service>
+
+    </services>
+
+    <channels>
+        <channel-definition id="foo-channel" class="mx.messaging.chanels.FooChannel">
+            <endpoint url="/foo" class="flex.messaging.endpoints.FooEndpoint"/>
+        </channel-definition>
+    </channels>
+
+</services-config>

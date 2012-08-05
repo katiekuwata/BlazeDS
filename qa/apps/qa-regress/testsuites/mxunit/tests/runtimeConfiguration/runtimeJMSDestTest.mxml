@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2007 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+                xmlns:qa="http://www.adobe.com/2006/flexqa"
+                creationComplete="run()">
+    
+    <!-- 
+        This test uses a dynamic JMS destination created after server startup (at runtime). 
+        It also specifies channels using the AS API, instead of mxml tags.
+    -->
+    <mx:Script>
+    <![CDATA[
+        import mx.rpc.remoting.RemoteObject;
+        import mx.events.PropertyChangeEvent;
+	    import mx.messaging.events.MessageFaultEvent;	    
+        import mx.messaging.events.MessageEvent;
+        import mx.messaging.events.MessageAckEvent;
+        import mx.messaging.messages.AsyncMessage;
+        import mx.messaging.channels.AMFChannel;
+        import mx.messaging.ChannelSet;
+        import mx.messaging.Consumer;
+        import mx.messaging.Producer;
+        import qa.mxunit.MXUnitManager;
+        import qa.mxunit.Assert;
+
+        private var msgString:String = "hello runtime world";
+        private var pro:Producer = new Producer();
+        private var con:Consumer = new Consumer();
+                
+        private function run():void
+        {
+
+            // Assing destinations
+            pro.destination = "JMSDest_runtime";
+            con.destination = "JMSDest_runtime";
+			// Specify channel to ping with via AS
+			var cs:ChannelSet = new ChannelSet();
+            cs.addChannel(new AMFChannel("someid", "http://{server.name}:{server.port}/qa-regress/messagebroker/amfpolling"));
+            con.channelSet = cs;
+            pro.channelSet = cs;
+            con.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, consumerSubscribed);
+            con.subscribe();
+        }
+
+        private function consumerSubscribed(event:PropertyChangeEvent):void
+        {
+            if (event.property == "subscribed")
+            {
+                if (event.oldValue == false && event.newValue == true)
+                {
+                    MXUnitManager.addTests(this,["JMSDestRuntimeTest", "CodeCoverageTest"], 5000);
+                }
+            }                
+        }
+
+        public function JMSDestRuntimeTest():void
+        {
+            var msg:AsyncMessage = new AsyncMessage();
+            msg.body = msgString;
+			MXUnitManager.getInstance().currentTest.chain(con, [MessageEvent.MESSAGE, MessageFaultEvent.FAULT], conHandler);
+			MXUnitManager.getInstance().currentTest.chain(pro, [MessageAckEvent.ACKNOWLEDGE, MessageFaultEvent.FAULT], proHandler);
+            pro.send(msg);      
+        }
+        
+        public function CodeCoverageTest():void
+        {
+            pro.disconnect();
+            con.disconnect();
+            
+            var ro:RemoteObject = new RemoteObject("RuntimeRemotingDest_JMS");
+            ro.runCodeCoverage();            
+            Assert.pass();
+            Assert.hasPendingTest = false;
+        }
+        
+        private function conHandler(event:Event):void
+        {
+            if (event is MessageEvent) {
+		        Assert.assertEquals("Message received should be: " + msgString, msgString, MessageEvent(event).message.body.toString());               
+            }
+            else
+            {
+                Assert.fail("Message consumer faulted: " + MessageFaultEvent(event).faultDetail);  
+            }
+        }
+
+        private function proHandler(event:Event):void 
+        {
+            if (event is MessageAckEvent)
+            {
+		        Assert.assertTrue(true);               
+            }
+            else
+            {
+                Assert.fail("Message producer faulted: " + MessageFaultEvent(event).faultDetail);  
+            }
+        }
+
+    ]]>
+    </mx:Script>  
+	     
+</mx:Application>

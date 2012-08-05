@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 11i
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests that a CDATA escaped string containing special characters
+(including some would otherwise corrupt the XML packet) can be
+parsed from an AMFX formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <string><![CDATA[This string contains special characters: < > & ' "]]></string>
+    </body>
+</amfx>

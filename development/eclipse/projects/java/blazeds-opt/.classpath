@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="**.TomcatValve4150.java" kind="src" path="tomcat"/>
+	<classpathentry kind="src" path="weblogic"/>
+	<classpathentry kind="src" path="oracle"/>
+	<classpathentry kind="src" path="jrun"/>
+	<classpathentry kind="src" path="websphere"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-core"/>
+	<classpathentry kind="lib" path="lib/asynchbeans.jar"/>
+	<classpathentry kind="lib" path="lib/catalina.jar"/>
+	<classpathentry kind="lib" path="lib/jazncore.jar"/>
+	<classpathentry kind="lib" path="lib/jrun.jar"/>
+	<classpathentry kind="lib" path="lib/mx4j-jmx.jar"/>
+	<classpathentry kind="lib" path="lib/oc4j-api.jar"/>
+	<classpathentry kind="lib" path="lib/sas.jar"/>
+	<classpathentry kind="lib" path="lib/servlet.jar"/>
+	<classpathentry kind="lib" path="lib/weblogic.jar"/>
+	<classpathentry kind="lib" path="lib/wsexception.jar"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/servlet.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

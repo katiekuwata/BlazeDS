@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+	creationComplete="initComp()">
+
+	<mx:Script>
+		<![CDATA[
+			import mx.messaging.channels.StreamingAMFChannel;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.channels.AMFChannel;
+			import mx.messaging.events.MessageEvent;
+			import mx.messaging.messages.AsyncMessage;
+			import mx.messaging.messages.IMessage;
+
+
+			private function initComp():void
+			{
+				var myStreamingAMF:AMFChannel = new StreamingAMFChannel("my-streaming-amf", "../messagebroker/streamingamf");
+				var myPollingAMF:AMFChannel = new AMFChannel("my-polling-amf", "../messagebroker/amfpolling");
+				myPollingAMF.pollingEnabled = true;
+				myPollingAMF.pollingInterval = 2000;
+				var channelSet:ChannelSet = new ChannelSet();
+				channelSet.addChannel(myStreamingAMF);
+				channelSet.addChannel(myPollingAMF);
+				consumer.channelSet = channelSet;				
+				producer.channelSet = channelSet;
+			}
+
+			public function set room(name:String):void
+			{
+				if (!name) return;
+				
+				if (consumer && consumer.subscribed) 
+				{
+					log.text += "Leaving room " + consumer.destination + "\n";	
+					consumer.unsubscribe();
+				}
+				consumer.destination = name;
+				producer.destination = name;
+				consumer.subscribe();
+				log.text += "Entering room " + name + "\n";	
+			}
+			
+			private function send():void
+			{
+				var message:IMessage = new AsyncMessage();
+				message.body = msg.text;
+				producer.send(message);
+				msg.text = "";
+			}
+							
+			private function messageHandler(event:MessageEvent):void
+			{
+				log.text += event.message.body + "\n";	
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Producer id="producer"/>
+	<mx:Consumer id="consumer" message="messageHandler(event)"/>
+
+	<mx:TextArea id="log" width="100%" height="100%"/>
+	
+	<mx:ControlBar>
+		<mx:TextInput id="msg" width="100%" enter="send()" enabled="{consumer.subscribed}"/>
+		<mx:Button label="Send" click="send()" enabled="{consumer.subscribed}"/>
+	</mx:ControlBar>
+	
+</mx:Panel>

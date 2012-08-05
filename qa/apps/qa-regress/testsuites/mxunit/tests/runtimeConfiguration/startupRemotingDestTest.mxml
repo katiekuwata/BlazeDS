@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2007 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+                xmlns:qa="http://www.adobe.com/2006/flexqa"
+                creationComplete="run()">
+    <!--
+        This test verifies that a runtime-configured Remoting destination created during
+        server startup can be accessed successfully.
+        Notice that a channel must be specified for the destination to be reachable.
+    -->
+    <mx:RemoteObject id="myWeatherService" destination="RemotingDest_startup" 
+    	fault="handleWeatherFault(event)" 
+    	result="handleWeatherResult(event)">
+    	<mx:channelSet>
+			<mx:ChannelSet>
+		    	<mx:channels>
+		        	<mx:AMFChannel url="http://\{server.name\}:\{server.port\}/qa-regress/messagebroker/amf"/>
+		        </mx:channels>
+		    </mx:ChannelSet>        	
+        </mx:channelSet>
+    </mx:RemoteObject>
+	
+	<mx:Script>
+	<![CDATA[
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.events.FaultEvent;        
+        import qa.mxunit.Assert;
+        import qa.mxunit.MXUnitManager;   
+        
+        public var faultstring:String = "";
+        public var result:Object = new Object();
+
+		private function run():void {
+
+			//Hardcoded tempeture for 02465 is 80 degrees in WeatherService
+			myWeatherService.getTemperature("02465");
+			
+            MXUnitManager.delay = 6000;
+            MXUnitManager.addTests(this,["remotingStartupDestTest"],1000);			
+		}
+		
+        private function handleWeatherResult(event:ResultEvent):void {
+            result = event.result;
+        }
+
+        private function handleWeatherFault(event:FaultEvent):void {
+            faultstring = event.fault.faultString;
+        }
+		
+        public function remotingStartupDestTest():void {
+            var expected:String = "80";
+
+            Assert.assertTrue("remoting call faulted: " + faultstring, faultstring=="");
+            Assert.assertEquals("remote call should return: " + expected, expected, result);
+        }		
+	]]>
+	</mx:Script>
+ 
+</mx:Application>

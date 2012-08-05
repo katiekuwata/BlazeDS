@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="setUp()">           
+    
+    <mx:Script>
+    <![CDATA[
+    	import qa.mxunit.Assert;
+    	import qa.mxunit.MXUnitManager;
+    	import qa.CommunicationManager; 
+          
+ 
+        ////////////////////////////////////////////////////////////////////////////
+        //
+        // Variables
+        //
+        ////////////////////////////////////////////////////////////////////////////                          
+        /**
+        * Instance of CommunicationManager class, which creates a Consumer and calls subscribe on it.  
+        */
+        public var manager:CommunicationManager = new CommunicationManager(); 
+        
+        /**
+        * Instance of MXUnitManager used by the MXUnit framework. 
+        */ 
+        public var mxunitManager:MXUnitManager; 
+                            
+		/**
+		 * Setup method called at creationComplete which initializes MXUnit. 
+		 */                             
+        public function setUp():void 
+        {
+        	//configure the MXUnitManager           
+            mxunitManager = MXUnitManager.getInstance();                                                               
+           
+            //Call addTests giving it the name of our test function
+            mxunitManager.addTests(this,["nullPointerTest"], 20000);  
+        }
+        
+        /**
+        * Test for BLZ-300. The CommunicationManager class creates a new Consumer in it's constructor 
+        * and calls subscribe() on it. This was throwing a null pointer exception in ServerConfig.as 
+        * if the class was instantiated before the application was completely initialized as it is here. 
+        * The CommunicationManager subscribes the Consumer in a try/catch block and saves the TypeError 
+        * to a variable. The test method then just checks that no null pointer was thrown. 
+        */
+        public function nullPointerTest():void
+        {
+        	Assert.assertNull("Should not have received a type error.",manager.error);
+        }
+       
+    ]]>
+    </mx:Script>           
+</mx:Application>

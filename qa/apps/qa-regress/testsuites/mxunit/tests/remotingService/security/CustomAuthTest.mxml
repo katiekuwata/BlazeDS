@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+
+<mx:Application  width='800' height='800' xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="startRun()">
+ <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+    <mx:RemoteObject destination="qa.secured.echoservice.Echo" id="amfRemote" result="resultHandler(event)" fault="faultHandler(event)">
+        <mx:method name="echoBoolean" result="loginRequestFail()" fault="loginRequestPass(event)">
+            <mx:arguments>
+                <param>true</param>
+            </mx:arguments>
+        </mx:method>
+        <mx:method name="echoBooleans">
+            <mx:arguments>
+                <param>true</param>
+                <param>false</param>
+                <param>false</param>
+                <param>true</param>
+            </mx:arguments>
+        </mx:method>
+    </mx:RemoteObject>
+    <mx:Script>
+    <![CDATA[
+        import qa.mxunit.*;
+        import mx.rpc.events.*;
+
+        private var expectedValue:Boolean = true;
+        private var expectedArray:Array = [true,false,false,true];
+
+        private function startRun():void
+        {
+            MXUnitManager.addTests(this,["testNoCredentials","testWithCredentials","testSingleSignOn"],5000);
+        }
+        /**
+        *    Test no credential should reject invocation with faultCode "Client.Authentication"
+        **/
+        public function testNoCredentials():void
+        {
+            var call:Object = amfRemote.echoBoolean.send();
+            Assert.hasPendingTest = true;
+        }
+        /**
+        *    Test with credential should accept invocation
+        **/
+        public function testWithCredentials():void
+        {
+            //amfRemote.setUsernamePassword("sampleuser","samplepassword");
+            //amfRemote.username= "sampleuser";
+            //amfRemote.password = "samplepassword";
+            amfRemote.setCredentials("sampleuser","samplepassword");
+            var call:Object = amfRemote.echoBooleans.send();
+            call.expected = expectedArray;
+            Assert.hasPendingTest = true;
+        }
+        /**
+        *    Test no credential should accept invocation after logon
+        **/
+        public function testSingleSignOn():void
+        {
+            var call:Object = amfRemote.echoBooleans.send();
+            call.expected = expectedArray;
+            Assert.hasPendingTest = true;
+        }
+
+        private function loginRequestPass(e:FaultEvent):void
+        {
+            Assert.assertEquals("Client.Authentication",e.fault.faultCode);
+            Assert.hasPendingTest = false;
+        }
+        private function loginRequestFail():void
+        {
+            Assert.fail("Should return client.Authentication fault");
+            Assert.hasPendingTest = false;
+        }
+        private function resultHandler(e:ResultEvent):void
+        {
+            Assert.assertEquals(e.token.expected.toString(),e.result.toString());
+            Assert.hasPendingTest = false;
+        }
+
+        private function faultHandler(e:FaultEvent):void
+        {
+            Assert.fail(e.fault.faultString);
+            Assert.hasPendingTest = false;
+        }
+
+
+    ]]>
+    </mx:Script>
+
+</mx:Application>

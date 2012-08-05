@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<service class="flex.messaging.services.MessageService" id="message-service">
+
+    <adapters>
+        <adapter-definition class="flex.messaging.services.messaging.adapters.ActionScriptAdapter" default="true" id="actionscript"></adapter-definition>
+        <adapter-definition class="flex.messaging.services.messaging.adapters.JMSAdapter" id="jms"></adapter-definition>
+    <adapter-definition class="qa.messaging.DynamicDestinationAdapter" id="secured-actionscript"></adapter-definition>
+</adapters>
+
+<destination id="MyTopic">
+        <properties>
+            <network>
+ 				<throttle-outbound policy="CONFLATE" max-frequency="100" max-client-frequency="10"/>
+            </network>
+            <server>
+                <!-- ttl of 0 means live forever -->
+                <message-time-to-live>0</message-time-to-live>    
+
+                <!-- options to make this a durable destination -->
+                <durable>false</durable>
+         
+            </server>
+
+        </properties>
+
+        <channels>
+    		<channel ref="qa-polling-amf"></channel>
+	    </channels>
+    </destination>
+</service>

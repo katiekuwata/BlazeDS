@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<services-config>
+	
+	
+	<channels>
+		<channel-definition class="mx.messaging.channels.AMFChannel" id="qa-polling-amf">
+        	<endpoint class="flex.messaging.endpoints.AMFEndpoint" url="http://{server.name}:{server.port}/{myToken}"></endpoint>
+	        <properties>
+	            <polling-enabled>true</polling-enabled>
+	            <polling-interval-millis>2000</polling-interval-millis>
+	            <serialization>
+	                <legacy-collection>true</legacy-collection>
+	            </serialization>
+	        </properties>
+    	</channel-definition>
+	</channels>
+	
+</services-config>

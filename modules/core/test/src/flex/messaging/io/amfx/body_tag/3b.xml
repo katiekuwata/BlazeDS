@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 3b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests a simple body and its attributes can be parsed
+from an AMFX formatted stream.
+
+Note that Flex 2.0 does not make use of the targetURI
+attribute, and only makes use of a repsonseURI in binary AMF
+repsonses, not AMFX request/responses. 
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <string>Sample Value</string>
+    </body>
+</amfx>

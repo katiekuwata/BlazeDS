@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="horizontal"
+	creationComplete="srv.getProducts()">
+	
+	<mx:RemoteObject id="srv" destination="product"/>
+	
+	<mx:Panel title="Catalog" width="100%" height="100%">
+		<mx:DataGrid id="list" dataProvider="{srv.getProducts.lastResult}" width="100%" height="100%"/> 
+	</mx:Panel>
+	
+	<ProductForm product="{Product(list.selectedItem)}"/>
+	
+</mx:Application>

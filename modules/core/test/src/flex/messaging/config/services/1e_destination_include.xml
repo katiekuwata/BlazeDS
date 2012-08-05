@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1e - destination include
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/27/2005
+
+The include for the 1e Unit Test.
+ -->
+<destination id="foo-dest">
+    <properties>
+        <fooString>fooValue</fooString>
+    </properties>
+</destination>

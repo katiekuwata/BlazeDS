@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<Application xmlns="http://www.adobe.com/2006/mxml" creationComplete="run()">
+ <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+    <!-- this test verifies that a remote object really is stateless -->
+    <RemoteObject id="statelessRO" destination="qa.stateless.remoting.Test" result="resultHandler(event)" fault="faultHandler(event)">
+        <method name="keepit" result="keepitHandler(event)" fault="keepitFault(event)">
+            <arguments>
+                <it>Something</it>
+            </arguments>
+        </method>
+    </RemoteObject>
+    <Script>
+    <![CDATA[
+        import qa.mxunit.*;
+        import mx.rpc.events.*;
+        private function run():void
+        {
+            MXUnitManager.addTests(this,["testIsDifferentInstance"],3000);
+        }
+        /**
+        *  Test stateless remoteobject uses new instance for every reqest
+        **/
+        public function testIsDifferentInstance():void
+        {
+            statelessRO.keepit.send();
+        }
+        private function keepitHandler(event:ResultEvent):void
+        {
+            statelessRO.keepWhat();
+        }
+        private function keepitFault(e:FaultEvent):void
+        {
+            Assert.currentTest.doFail(e.fault.faultString);
+        }
+
+        private function resultHandler(event:ResultEvent):void
+        {
+            Assert.currentTest.doAssertEquals(event.result,null);
+        }
+        private function faultHandler(e:FaultEvent):void
+        {
+            Assert.currentTest.doFail(e.fault.faultString);
+        }
+
+    ]]>
+    </Script>
+</Application>

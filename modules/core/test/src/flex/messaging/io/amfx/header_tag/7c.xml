@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 7c
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests multiple headers can be parsed from an AMFX
+formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <header name="Sample Header">
+        <string>Sample value.</string>
+    </header>
+    <header name="Another Header" mustUnderstand="false">
+        <object>
+            <traits>
+                <string>prop0</string>
+                <string>prop1</string>
+            </traits>
+            <string>Another sample value.</string>
+            <double>400.05</double>
+        </object>
+    </header>
+    <header name="Yet Another Header" mustUnderstand="true">
+        <array length="3">
+            <int>-10</int>
+            <int>0</int>
+            <int>10</int>
+        </array>
+    </header>
+</amfx>

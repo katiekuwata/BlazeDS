@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service id="remoting-service"
+    class="flex.messaging.services.RemotingService">
+
+    <adapters>
+        <adapter-definition id="java-object" class="flex.messaging.services.remoting.adapters.JavaAdapter" default="true"/>
+    </adapters>
+
+    <default-channels>
+        <channel ref="my-amf"/>
+    </default-channels>
+
+    <destination id="remoting_AMF" channels="my-amf">
+        <properties>
+            <source>features.remoting.EchoService</source>
+        </properties>
+    </destination>
+
+    <!-- Destination that can be used to push messages from the server -->
+    <destination id="serverPushRO" channels="my-amf">
+        <properties>
+            <source>features.messaging.serverpush.ServerPushService</source>
+            <scope>application</scope>
+        </properties>
+    </destination>
+
+    <!-- A destination protected by a basic security constraint.
+         Security constraints are defined in services-config.xml
+    -->
+    <destination id="remoting_AMF_SecurityConstraint_Basic" channels="my-amf">
+        <properties>
+            <source>features.remoting.EchoService</source>
+        </properties>
+        <security>
+            <security-constraint ref="sample-user-basic"/>
+        </security>
+    </destination>
+
+    <!-- A destination protected by a custom security constraint.
+         Security constraints are defined in services-config.xml
+    -->
+    <destination id="remoting_AMF_SecurityConstraint_Custom" channels="my-amf">
+        <properties>
+            <source>features.remoting.EchoService</source>
+        </properties>
+        <security>
+            <security-constraint ref="sample-user-custom"/>
+        </security>
+    </destination>
+
+    <!-- Used by Flex clients to create destinations at runtime -->
+    <destination id="RuntimeConfigurator" channels="my-amf">
+        <properties>
+            <source>features.runtimeconfig.RuntimeConfigurator</source>
+        </properties>
+    </destination>
+
+    <!-- BEGIN destinations for testing MessageBrokerFilters -->
+    <destination id="filteredAck">
+        <properties>
+            <source>features.remoting.EchoService</source>
+        </properties>
+    </destination>
+
+    <destination id="filteredFault">
+        <properties>
+            <source>features.remoting.EchoService</source>
+        </properties>
+    </destination>
+    <!-- END destinations for testing MessageBrokerFilters -->
+
+</service>

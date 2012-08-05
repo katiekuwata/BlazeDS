@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*"
+	title="Details" width="100%" height="100%">
+	
+	<Product id="product"
+		name="{productName.text}"
+		category="{category.text}"
+		price="{Number(price.text)}"
+		image="{image.text}"
+		description="{description.text}"/>
+
+	<mx:RemoteObject id="srv" destination="product"/>
+
+	<mx:Form width="100%">
+	
+		<mx:FormItem label="Name">
+			<mx:TextInput id="productName" text="{product.name}"/>
+		</mx:FormItem>
+	
+		<mx:FormItem label="Category">
+			<mx:TextInput id="category" text="{product.category}"/>
+		</mx:FormItem>
+		
+		<mx:FormItem label="Image">
+			<mx:TextInput id="image" text="{product.image}"/>
+		</mx:FormItem>
+		
+		<mx:FormItem label="Price">
+			<mx:TextInput id="price" text="{product.price}"/>
+		</mx:FormItem>
+	
+		<mx:FormItem label="Description" width="100%">
+			<mx:TextArea id="description" text="{product.description}" width="100%" height="100"/>
+		</mx:FormItem>
+		
+	</mx:Form>
+
+	<mx:ControlBar>
+		<mx:Button label="Update" click="srv.update(product);"/>
+	</mx:ControlBar>
+
+</mx:Panel>

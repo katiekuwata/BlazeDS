@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2007 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa"
+creationComplete="run()">
+	
+    <!--
+        This test verifies that a runtime-configured SOAP Proxy destination can be accessed successfully.
+        Notice that a channel must be specified: only static destinations are known by the client at runtime,
+        therefore a client must specify a suitable channel to ping the dynamic destination. 
+    -->
+	<mx:Script>
+	<![CDATA[
+        import qa.mxunit.Assert;
+        import qa.mxunit.MXUnitManager;
+        import mx.rpc.events.*;
+		import mx.rpc.soap.WebService;
+		import mx.rpc.soap.Operation;
+		import mx.messaging.*;
+		import mx.messaging.channels.*;
+
+        public var fault:Object;
+        public var result:Object;
+        public var events:Array = [];
+        public var myWebService:WebService;
+
+        private function onServiceLoad(event:Event):void {
+            events.push("service load");
+            output.text += "-> Service load.\n";
+        }
+
+        private function onServiceFault(event:FaultEvent):void {
+            events.push("service fault");
+            output.text += "-> Service fault: " + event.fault.faultCode + " - " + event.fault.faultString + ".\n";
+        }
+
+        private function onFault(event:FaultEvent):void {
+            fault = event.fault;
+            events.push("operation fault");
+            output.text += "-> Operation fault: " + event.fault.faultCode + " - " + event.fault.faultString + ".\n";
+        }
+
+        private function onResult(event:ResultEvent):void {
+            result = event.result;
+            events.push("operation result");
+            output.text += "-> Result: " + event.result + ".\n";
+        }
+
+	
+		private function run():void {
+			myWebService = new WebService();
+			myWebService.destination = "SOAPProxyDest_runtime";                                                        
+			myWebService.useProxy=true;
+			myWebService.addEventListener("load", onServiceLoad);
+			myWebService.addEventListener("fault", onServiceFault);
+			var cs:ChannelSet = new ChannelSet();     
+			cs.addChannel(new HTTPChannel(null, "http://{server.name}:{server.port}/qa-regress/messagebroker/http")); 
+			myWebService.channelSet = cs;
+			myWebService.echoInteger.addEventListener("fault", onFault);
+			myWebService.echoInteger.addEventListener("result", onResult);
+			myWebService.echoString.addEventListener("fault", onFault);
+			myWebService.echoString.addEventListener("result", onResult);
+			myWebService.loadWSDL();
+			
+            myWebService.echoInteger(109);
+
+            MXUnitManager.delay = 6000;
+            MXUnitManager.addTests(this,["SOAPProxyDestTest"],1000);
+		}
+
+        public function SOAPProxyDestTest():void {
+			var noFault:Boolean = true;
+            var faultstring:String = "";
+            var operationSucceeded:Boolean = true;
+            var actual:Object;
+            var expected:uint = 109;
+
+            if (fault != null) {
+                noFault = false;
+                faultstring = fault.faultString;
+            }
+            if (result == null) {
+                operationSucceeded = false;
+            } else {
+                actual = result;
+            }
+
+
+            Assert.assertTrue("fault thrown " + faultstring, noFault);
+            Assert.assertTrue("operation did not return a result", operationSucceeded);
+            Assert.assertEquals("operation returned wrong result.", expected, actual);
+            if (events.length > 2) {
+    		    Assert.fail("More than two events fired - " + events.toString());
+    	    }
+		}
+	]]>
+	</mx:Script>
+    
+    <mx:TextArea id="output" height="200" percentWidth="80" />
+    <mx:TraceTarget level="8"/>    
+</mx:Application>

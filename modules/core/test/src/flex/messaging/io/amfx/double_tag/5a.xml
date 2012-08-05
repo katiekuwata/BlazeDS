@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 5a
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/23/2005
+
+Tests a simple double, -1.0, can be parsed from an AMFX
+formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <double>-1.0</double>
+    </body>
+</amfx>

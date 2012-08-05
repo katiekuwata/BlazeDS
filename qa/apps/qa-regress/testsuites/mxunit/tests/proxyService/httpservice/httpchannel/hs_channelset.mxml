@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa"
+creationComplete="run()">
+	
+	<!-- without proxy -->   
+    <mx:HTTPService 
+		id="hs" 
+		useProxy="true"
+    	destination="echoParamsAsFlashvars_channelSet" 
+    	resultFormat = "flashvars"
+    	method = "POST"
+        result="onServiceResult(event)" 
+        fault="onServiceFault(event)" >
+       
+        <mx:request>
+           
+                <mx:foo>foo</mx:foo>
+                <mx:bar>bar</mx:bar>
+           
+        </mx:request>
+    </mx:HTTPService>
+	
+
+	<mx:Script>	
+	<![CDATA[
+        /****************************************************
+        *  HttpService ChannelSet test
+        * **************************************************/
+        
+		import qa.mxunit.*;
+		import mx.messaging.Channel;
+		import mx.messaging.ChannelSet;
+		import mx.messaging.config.ServerConfig;
+		import mx.rpc.events.*;
+		import mx.controls.Alert;
+
+        public var result:Object;
+		public var type : String;
+		public var faultType : String;
+
+        public function onServiceResult(event:ResultEvent):void {
+        	 type = event.type;
+			 result = event.result;
+		}
+
+
+	   public function onServiceFault(event:FaultEvent):void {
+            trace("http service fault: " + event.fault.faultString);
+        }
+		
+
+	public	function run():void {
+            
+			hs.channelSet = new ChannelSet();
+			hs.channelSet.addChannel(ServerConfig.getChannel("qa-http"));
+			hs.send();
+			
+          
+
+            MXUnitManager.delay = 6000;
+			MXUnitManager.addTests(this,["Test_cs"],10000);
+		}
+
+		public function Test_cs():void {
+
+          Assert.isTrue(result.bar == "bar", " result.bar should be 'bar'");
+          Assert.isTrue(result.foo == "foo", "result.foo should be 'foo'");
+
+		}
+		
+
+
+
+
+
+	]]>
+	</mx:Script>
+</mx:Application>

@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2007 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  creationComplete="initApp()">
+    
+    <mx:Panel id="mainPanel" title="Runtime Configuration Testing"  height="100%" width="100%"
+            paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10">
+        <mx:Text width="100%" text="This test verifies that runtime destination removeDestination doesn't leave anything behind and cause any memory leak(Bug 211149)." />
+		<mx:HBox>
+			<mx:Button label="Step #1: Create Destination" click="createDestination()"/>
+			<mx:Button label="Step #2: Remove Destination" click="removeDestination()"/>
+            <mx:Button label="Step #3: Create Repeat Destination" click="createRepeatDestination()"/>
+		</mx:HBox>
+        <mx:TextArea id="myText" width="100%" height="100%"/> 
+    </mx:Panel>
+
+	<mx:Script>
+	<![CDATA[
+		import mx.rpc.AsyncToken;
+		import mx.rpc.events.*;
+		import mx.rpc.remoting.RemoteObject;
+		import qa.mxunit.MXUnitManager;
+		import qa.mxunit.Assert;
+		
+		private var runtimeConfigurator:mx.rpc.remoting.RemoteObject;
+		private var pass:Boolean;
+		private var cleanup:Boolean;
+
+		private function initApp () : void
+		{	
+			pass = cleanup = false;
+			runtimeConfigurator = new mx.rpc.remoting.RemoteObject();
+			runtimeConfigurator.destination = "RuntimeConfigurator";
+			runtimeConfigurator.addEventListener(ResultEvent.RESULT, handleConfiguratorResult);			
+			runtimeConfigurator.addEventListener(FaultEvent.FAULT, handleConfiguratorFault);
+			createDestination();
+		}
+
+		/******************************************************************
+		* Create/remove methods
+		******************************************************************/
+		private function createDestination() : void
+		{
+			var token:AsyncToken = runtimeConfigurator.createRemotingDestination("RC_WeatherService", "dev.weather.WeatherService", "application");
+			token.op = "create";
+			myText.text += "Expecting RC_WeatherService created successfully\n";
+		}
+
+		private function createRepeatDestination() : void
+		{
+			var token:AsyncToken = runtimeConfigurator.createRemotingDestination("RC_WeatherService", "dev.echoservice.Echo", "application");
+			token.op = "repeat";
+			myText.text += "\nExpecting RC_WeatherService added successfully.\n";
+		}
+
+		private function removeDestination() : void
+		{
+			var token:AsyncToken = runtimeConfigurator.removeDestination("RC_WeatherService", "remoting-service");
+			token.op = "remove";
+			myText.text += "\nExpecting RC_WeatherService removed successfully\n";
+		}
+
+		/******************************************************************
+		 * Handlers
+		 *****************************************************************/
+		private function handleConfiguratorResult (event:ResultEvent) : void
+		{
+			myText.text += "ResultEvent: "  + event.result + "\n";
+			var token:AsyncToken = event.token;
+			if (token != null)
+			{
+				switch (token.op)
+				{
+					case "create":
+						removeDestination();
+						break;
+					
+					case "repeat":
+						pass = true;
+						cleanup = true;
+						removeDestination();
+						MXUnitManager.addTests(this, ["testAddRemovePass"]);
+						break;
+					
+					case "remove":
+						if(!cleanup)
+							createRepeatDestination();
+						break;		
+				}	
+			}
+		}
+
+		private function handleConfiguratorFault (event:FaultEvent) : void
+		{
+			myText.text += "FaultEvent:" + event.fault + "\n"
+		}
+
+		/*******************************************************************
+		 *  testPass
+		 ******************************************************************/
+		 public function testAddRemovePass():void
+		 {
+		 	Assert.assertTrue(pass);
+		 }
+      ]]>
+	</mx:Script>
+
+</mx:Application>

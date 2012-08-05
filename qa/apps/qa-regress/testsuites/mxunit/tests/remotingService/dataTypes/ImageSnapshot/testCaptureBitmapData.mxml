@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<mx:Application  xmlns:mx="http://www.adobe.com/2006/mxml"
+        xmlns:qa="http://www.adobe.com/2006/flexqa"
+        creationComplete="run()">
+
+    <mx:Label fontSize="16" text="mxunit test: testCaptureBitmapData" />
+    <qa:MXUnit id="testCaptureBitmapDataNotNull" timeout="5000"/>
+    <qa:MXUnit id="testCaptureBitmapDataWidth" timeout="5000"/>
+    <qa:MXUnit id="testCaptureBitmapDataHeight" timeout="5000"/>
+
+    <mx:Script>
+    <![CDATA[
+    
+    import flash.display.Bitmap;
+    import flash.display.BitmapData;
+    import mx.collections.ArrayCollection;
+    import mx.core.IFlexDisplayObject;
+    import mx.graphics.ImageSnapshot;
+
+    [Bindable]
+    public var earnings:ArrayCollection = new ArrayCollection([
+    {Year:2003, Earnings:1.59},
+    {Year:2004, Earnings:1.85},
+    {Year:2005, Earnings:2.01},
+    {Year:2006, Earnings:2.59}]);
+
+    private function run():void
+    {
+        var matrix:Matrix = new Matrix(2, 0, 0, 2);
+        var bitmapData:BitmapData = ImageSnapshot.captureBitmapData(earningsChart, matrix);
+        testCaptureBitmapDataNotNull.doAssert(bitmapData != null, "bitmapData should not be null");
+
+        var bitmap:Bitmap = new Bitmap(bitmapData);
+        imageCopy.source = bitmap;
+
+        testCaptureBitmapDataWidth.doAssert(bitmap.width == (earningsChart.width * 2), "bitmap.width should be " + (earningsChart.width * 2));
+        testCaptureBitmapDataHeight.doAssert(bitmap.height == (earningsChart.height * 2), "bitmap.height should be " + (earningsChart.height * 2));
+    }
+
+    ]]>
+    </mx:Script>
+
+    <mx:Panel id="panel" title="Company Inc." height="100%" width="100%" 
+        paddingTop="10" paddingLeft="10" paddingRight="10">
+        <mx:Label id="earningsLabel" text="Annual Earnings" />
+        <mx:ColumnChart id="earningsChart" height="200" width="400"
+            paddingLeft="5" paddingRight="5" 
+            showDataTips="true" dataProvider="{earnings}">
+            <mx:horizontalAxis>
+                <mx:CategoryAxis categoryField="Year"/>
+            </mx:horizontalAxis>
+            <mx:series>
+                <mx:ColumnSeries xField="Year" yField="Earnings" displayName="Earnings"/>
+            </mx:series>
+        </mx:ColumnChart>
+        
+        <mx:Image id="imageCopy" />
+
+    </mx:Panel>
+
+</mx:Application>

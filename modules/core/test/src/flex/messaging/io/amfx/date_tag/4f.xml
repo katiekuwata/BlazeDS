@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 4f
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests a negative date value can be parsed from an AMFX
+formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <!-- Captain Arthur Phillip sets anchor in
+             Sydney Cove on the evening of Jan 26, 1788 -->
+        <date>-5741103600000</date>
+    </body>
+</amfx>

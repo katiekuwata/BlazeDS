@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1a
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/27/2005
+
+Tests service tags that have no adapters, default-channels or destinations
+can be parsed from a Flex Data Services configuration file.
+ -->
+<services-config xmlns="http://www.adobe.com/2006/flex-enterprise-services">
+    <services>
+        <service id="foo-service"
+            class="flex.messaging.services.FooService"
+            messageTypes="flex.messaging.messages.FooMessage"/>
+
+        <service id="bar-service"
+            class="flex.messaging.services.BarService"
+            messageTypes="flex.messaging.messages.BarMessage">
+
+            <adapters />
+
+            <default-channels />
+        </service>
+
+
+    </services>
+</services-config>

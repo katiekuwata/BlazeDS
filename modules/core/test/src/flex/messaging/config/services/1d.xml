@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1d
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/27/2005
+
+Tests that several destinations with non-default channels and
+adapters defined, as well as properties and security constraints,
+can be parsed from a Flex Data Services configuration file.
+ -->
+<services-config xmlns="http://www.adobe.com/2006/flex-enterprise-services">
+
+    <services>
+
+        <service id="foo-service"
+            class="flex.messaging.services.FooService"
+            messageTypes="flex.messaging.messages.FooMessage">
+
+            <adapters>
+                <adapter-definition class="flex.messaging.services.foo.FooAdapter" id="foo" />
+                <adapter-definition class="flex.messaging.services.bar.BarAdapter" id="bar" default="true" />
+            </adapters>
+
+            <default-channels>
+                <channel ref="foo-channel" />
+            </default-channels>
+
+            <destination id="foo-dest">
+                <properties>
+                    <fooString>fooValue</fooString>
+                </properties>
+
+                <channels>
+                    <channel ref="foo-channel" />
+                </channels>
+
+                <security>
+                    <security-constraint ref="foo-constraint" />
+                </security>
+
+                <adapter ref="foo" />
+            </destination>
+
+            <destination id="bar-dest"
+                channels="bar-channel,foo-channel"
+                security-constraint="bar-constraint"
+                adapter="bar">
+
+                <properties>
+                    <barString>barValue</barString>
+                </properties>
+            </destination>
+
+        </service>
+
+    </services>
+
+    <security>
+        <security-constraint id="foo-constraint">
+            <auth-method>Custom</auth-method>
+            <roles>
+                <role>foo-managers</role>
+            </roles>
+        </security-constraint>
+
+        <security-constraint id="bar-constraint">
+            <auth-method>Custom</auth-method>
+            <roles>
+                <role>bar-managers</role>
+            </roles>
+        </security-constraint>
+    </security>
+
+    <channels>
+        <channel-definition id="foo-channel" class="mx.messaging.chanels.FooChannel">
+            <endpoint url="/foo" class="flex.messaging.endpoints.FooEndpoint"/>
+        </channel-definition>
+
+        <channel-definition id="bar-channel" class="mx.messaging.chanels.BarChannel">
+            <endpoint url="/bar" class="flex.messaging.endpoints.BarEndpoint"/>
+        </channel-definition>
+    </channels>
+
+</services-config>

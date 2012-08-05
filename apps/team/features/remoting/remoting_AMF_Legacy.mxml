@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+    creationComplete="creationCompleteHandler();">
+    <!--
+        This is an example of legacy way of making remote object calls with a 
+        NetConnection, rather than RemoteObject. 
+    -->
+    
+    <mx:Panel id="mainPanel" height="100%" width="100%">
+        <mx:HBox>    
+            <mx:Label text="Enter a text for the server to echo"/>
+            <mx:TextInput id="ti" text="Hello World!"/>
+            <mx:Button label="Send" click="echo()"/>
+            <mx:Button label="Clear" click='ta.text = ""'/>
+        </mx:HBox>
+        <mx:TextArea id="ta" width="100%" height="100%"/>
+    </mx:Panel>
+
+    <mx:Script>
+        <![CDATA[
+            import flash.net.NetConnection;
+            import flash.net.ObjectEncoding;
+            import flash.net.Responder;
+
+            private var nc:NetConnection
+            
+            private function creationCompleteHandler():void
+            {
+                nc = new NetConnection();
+                nc.client = this;
+                nc.objectEncoding = ObjectEncoding.AMF0;
+                nc.connect("http://localhost:8400/team/messagebroker/amf" );
+            }
+
+            private function echo():void
+            {
+                nc.call( "remoting_AMF.echo", new Responder( resultHandler, faultHandler ), ti.text );
+            }
+
+            private function resultHandler(result:Object):void
+            {
+                ta.text += "Server responded: "+ result + "\n";
+            }
+
+            private function faultHandler(fault:Object):void
+            {
+                ta.text += "Received fault: " + fault + "\n";
+            }
+
+            /**
+             * Called when AppendToGatewayUrl header is in the AMF message.
+             */
+            public function AppendToGatewayUrl(value:String):void
+            {
+                //No-op
+            }
+        ]]>
+    </mx:Script>
+
+</mx:Application>

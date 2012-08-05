@@ -1,0 +1,665 @@
+<?xml version="1.0"?>
+
+<!--
+/*************************************************************************
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ **************************************************************************/
+
+-->
+
+
+<!--
+
+Notes: If you're running the main target, then there is no need to call clean first.
+Each of the main targets for the modules will call clean themselves before proceeding.
+
+-->
+<project name="BlazeDS" default="main" basedir=".">
+    <property environment="env"/>
+
+    <!-- properties -->
+    <property file="${basedir}/build.properties" />
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="qa.dir" value="${basedir}/qa"/>
+
+    <!--if CruiseControl is used, label is set to SVN revision number-->
+    <property name="label" value="dev"/>
+    <property name="build.number" value="${label}"/>
+
+    <property name="subproject.target" value="main" />
+
+    <property name="server.baseurl" value="http://localhost:8400"/>
+
+    <property name="ant-contrib.jar" location="${env.ANT_HOME}/lib/ant-contrib-1.0b2.jar"/>
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
+
+    <property name="tmp.dir" value="${basedir}/packagetemp/temp" />
+    <property name="local.sdk.dir" value="resources/flex_sdk" />
+
+    <target name="main" depends="clean,sdk,webtier,common,core,proxy,remoting,opt,apps,createMMSFile" description="full build">
+        <tstamp>
+            <format property="build.datetime" pattern="MM/dd/yyyy hh:mm:ss aa" />
+        </tstamp>
+        <echo>ant main target completed on ${build.datetime}</echo>
+    </target>
+
+    <target name="help">
+        <echo message="run ant -projecthelp to see the available targets"/>
+    </target>
+
+    <!-- must be setup before building other targets -->
+    <target name="sdk" description="get the sdk and add to the server">
+        <ant antfile="${basedir}/modules/sdk/build.xml"/>
+    </target>
+	
+    <target name="webtier" description="get the webtier corresponding to the SDK used">
+        <ant antfile="${basedir}/qa/resources/webtier/build.xml"/>
+    </target>
+
+    <target name="common" description="full build of the common module">
+        <ant antfile="${basedir}/modules/common/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="core" description="full build of the core module">
+        <ant antfile="${basedir}/modules/core/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="proxy" description="full build of the proxy module">
+        <ant antfile="${basedir}/modules/proxy/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="remoting" description="full build of the remoting module">
+        <ant antfile="${basedir}/modules/remoting/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="opt" description="full build of the opt module">
+        <ant antfile="${basedir}/modules/opt/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="ajax" description="full build of the fds-ajax bridge">
+        <ant antfile="${basedir}/resources/fds-ajax-bridge/build.xml" dir="${basedir}/resources/fds-ajax-bridge"/>
+    </target>
+
+    <target name="apps" depends="consoleapp,samplesapp,blazedsapp,qaapp,qa-manualapp,teamapp" description="full build of all active apps" />
+
+
+    <target name="samplesapp" description="full build of the samples app">
+        <ant antfile="${basedir}/apps/samples/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="blazedsapp" description="full build of the messaging app">
+        <ant antfile="${basedir}/apps/blazeds/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="consoleapp" description="full build of the flex admin app">
+        <ant antfile="${basedir}/apps/ds-console/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="qaapp" description="full build of the qa app">
+        <ant antfile="${qa.dir}/apps/qa-regress/build.xml" dir="${qa.dir}"/>
+    </target>
+
+    <target name="qa-manualapp" description="full build of the qa manual testing app">
+        <ant antfile="${qa.dir}/apps/qa-manual/build.xml" />
+    </target>
+
+    <target name="teamapp" description="full build of the team app">
+        <ant antfile="${basedir}/apps/team/build.xml" target="${subproject.target}"/>
+    </target>
+
+    <target name="postbuilds">
+        <ant antfile="${basedir}/modules/core/build.xml" target="postbuilds"/>
+    </target>
+
+    <target name="createMMSFile"
+        description="create mms.cfg in order to enable local shared object access"
+        if="isWindows">
+        <if>
+            <isset property="env.WINDIR"/>
+            <then>
+                <property name="ocx.dir" value="${env.WINDIR}/system32/Macromed/Flash/" />
+            </then>
+            <else>
+                <if>
+                    <isset property="env.WinDir"/>
+                    <then>
+                        <property name="ocx.dir" value="${env.WinDir}/system32/Macromed/Flash/" />
+                    </then>
+                    <else>
+                        <property name="ocx.dir" value="${env.windir}/system32/Macromed/Flash/" />
+                    </else>
+                </if>
+            </else>
+        </if>
+        <!-- Sets the default maximum local shared object storage size to unlimited -->
+        <echo file="${ocx.dir}/mms.cfg" append="false">LocalStorageLimit=6</echo>
+    </target>
+
+    <target name="package" depends="package-clean" description="package task which creates zips">
+        <mkdir dir="${dist.dir}"/>
+
+        <!-- package qa apps -->
+        <!-- <ant antfile="${qa.dir}/apps/qa-manual/build.xml" target="package"/> -->
+        <ant antfile="${qa.dir}/apps/qa-regress/build.xml" target="package"/>
+
+        <ant antfile="${basedir}/apps/samples/build.xml" target="package"/>
+        <ant antfile="${basedir}/apps/blazeds/build.xml" target="package"/>
+        <ant antfile="${basedir}/apps/ds-console/build.xml" target="package"/>
+
+        <ant antfile="${appserver.dir}/build.xml" target="package"/>
+
+        <antcall target="package-oem" />
+
+        <copy todir="${dist.dir}/lib">
+            <fileset dir="${basedir}/lib">
+                <include name="flex-messaging-common.jar"/>
+            	<include name="flex-messaging-core.jar"/>            	
+            </fileset>
+        </copy>
+
+        <antcall target="javadoc" />
+
+        <!-- add apps to Tomcat -->
+        <unzip src="${dist.dir}/blazeds.war" dest="${dist.dir}/tomcat/webapps/blazeds" />
+        <unzip src="${dist.dir}/samples.war" dest="${dist.dir}/tomcat/webapps/samples" />
+        <unzip src="${dist.dir}/ds-console.war" dest="${dist.dir}/tomcat/webapps/ds-console" />
+
+        <!-- generate turnkey zip -->
+        <zip destfile="${dist.dir}/blazeds-turnkey-${manifest.Implementation-Version}.${label}.zip"
+            comment="${manifest.Implementation-Title} ${manifest.Implementation-Version}.${label}">
+            <fileset dir="${dist.dir}" includes="blazeds.war,samples.war,ds-console.war"/>
+            <zipfileset dir="${dist.dir}/tomcat" prefix="tomcat" excludes="bin,bin/*"/>
+            <zipfileset dir="${dist.dir}/tomcat/bin" prefix="tomcat/bin"  filemode="744"/>
+            <zipfileset dir="${dist.dir}/docs" prefix="docs"/>
+            <zipfileset dir="${basedir}/resources" prefix="resources" excludes="fds-ajax-bridge/build.xml,clustering/JGroups-2.5.1.src.zip"/>
+            <zipfileset dir="${basedir}/lib" prefix="resources/clustering" includes="jgroups*"/>
+        	<zipfileset dir="${basedir}/lib" prefix="resources/lib" includes="flex-messaging*"/>
+            <zipfileset dir="${basedir}/collateral" includes="blazeds-turnkey-readme.htm" fullpath="blazeds-turnkey-readme.htm"/>
+            <zipfileset dir="${dist.dir}/sampledb" prefix="sampledb" filemode="744"/>
+        </zip>
+
+        <!-- generate binary zip -->
+        <zip destfile="${dist.dir}/blazeds-bin-${manifest.Implementation-Version}.${label}.zip"
+            comment="${manifest.Implementation-Title} ${manifest.Implementation-Version}.${label}">
+            <fileset dir="${dist.dir}" includes="blazeds.war"/>
+            <zipfileset dir="${basedir}/collateral" includes="blazeds-bin-readme.htm" fullpath="blazeds-bin-readme.htm"/>
+        </zip>
+
+        <!-- generate src zip -->
+        <antcall target="package-src"/>
+
+    	<!-- generate java amf client zip -->
+        <zip destfile="${dist.dir}/blazeds-java-amf.${label}.zip"
+            comment="${manifest.Implementation-Title} ${manifest.Implementation-Version}.${label}">
+            <fileset dir="${dist.dir}/lib" includes="*"/>           
+        </zip>
+    	
+        <!-- geneate md5 checksums for the four zips -->
+        <checksum forceOverwrite="yes" format="MD5SUM">
+            <fileset dir="${dist.dir}">
+                <include name="blazeds-*.zip" />
+            </fileset>
+        </checksum>
+
+    </target>
+
+
+    <target name="package-src">
+
+       <zip destfile="${dist.dir}/blazeds-src-${manifest.Implementation-Version}.${label}.zip"
+            comment="${manifest.Implementation-Title} ${manifest.Implementation-Version}.${label}">
+            <zipfileset dir="${basedir}/collateral" includes="blazeds-src-readme.htm" fullpath="blazeds-src-readme.htm"/>
+               <fileset dir="${basedir}">
+                <include name="adobe.header"/>
+                <include name="build.properties"/>
+                <include name="build.xml"/>
+                <include name="readme.txt"/>
+                   <include name="collateral/**/*"/>
+                   <include name="development/**/*"/>
+                   <include name="sampledb/**/*"/>
+               </fileset>
+
+            <!-- apps folder -->
+               <zipfileset dir="${basedir}/apps" prefix="apps">
+
+                <!-- blazeds app -->
+                <include name="blazeds/**/*"/>
+                <exclude name="blazeds/WEB-INF/lib/"/>
+                <exclude name="blazeds/WEB-INF/src/"/>
+
+                <!-- ds-console app -->
+                <include name="ds-console/**/*"/>
+                <exclude name="ds-console/history/"/>
+                <exclude name="ds-console/*.swf"/>
+                <exclude name="ds-console/*.html"/>
+                <exclude name="ds-console/*.js"/>
+                <exclude name="ds-console/WEB-INF/lib/"/>
+                <exclude name="ds-console/WEB-INF/classes/"/>
+
+                <!-- samples app -->
+                <include name="samples/images/"/>
+                <include name="samples/*.htm"/>
+                <include name="samples/main.css"/>
+                <include name="samples/README.txt"/>
+                <include name="samples/build.xml"/>
+
+                <include name="samples/WEB-INF/"/>
+                <exclude name="samples/WEB-INF/classes/"/>
+                <exclude name="samples/WEB-INF/lib/b*"/>
+                <exclude name="samples/WEB-INF/lib/c*"/>
+                <exclude name="samples/WEB-INF/lib/f*"/>
+                <exclude name="samples/WEB-INF/flex-src/*.zip"/>
+                <exclude name="samples/WEB-INF/flex-src/**/datavisualization*.swc"/>
+
+                <!-- team app -->
+                <include name="team/**/*"/>
+                <exclude name="team/WEB-INF/lib/"/>
+                <exclude name="team/WEB-INF/classes/"/>
+                <exclude name="team/WEB-INF/flex/jars/"/>
+                <exclude name="team/WEB-INF/flex/libs/"/>
+                <exclude name="team/WEB-INF/flex/locale/"/>
+                <exclude name="team/WEB-INF/flex/*.ser"/>
+                <exclude name="team/WEB-INF/flex/flash-unicode-table.xml"/>
+                <exclude name="team/WEB-INF/flex/flex-sdk-description.xml"/>
+                <exclude name="team/WEB-INF/flex/mxml-manifest.xml"/>
+
+            </zipfileset>
+
+               <!-- qa folder -->
+               <zipfileset dir="${basedir}/qa" prefix="qa">
+                   <!-- qa-manual app -->
+                   <include name="apps/qa-manual/**/*"/>
+                   <exclude name="apps/qa-manual/bugs/"/>
+
+                   <!-- common excludes for both qa-manual and qa-regress apps -->
+                   <exclude name="apps/**/WEB-INF/classes/"/>
+                   <exclude name="apps/**/WEB-INF/lib/"/>
+                   <exclude name="apps/**/WEB-INF/flex/jars/"/>
+                   <exclude name="apps/**/WEB-INF/flex/libs/"/>
+                   <exclude name="apps/**/WEB-INF/flex/locale/"/>
+                   <exclude name="apps/**/WEB-INF/flex/*.ser"/>
+                   <exclude name="apps/**/WEB-INF/flex/flash-unicode-table.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/flex-sdk-description.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/mxml-manifest.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/flex-config.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/flex-webtier-config.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/messaging-config.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/proxy-config.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/remoting-config.xml"/>
+                   <exclude name="apps/**/WEB-INF/flex/services-config.xml"/>
+
+                   <!-- qa-regress app -->
+                   <include name="apps/qa-regress/**/*"/>
+                   <exclude name="apps/qa-regress/features/"/>
+                   <exclude name="apps/qa-regress/lib/"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/bugs/"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/noproxy/"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/general/array*"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/general/attributesScript.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/general/deserializeDocLitArray.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/general/twoDimensionalArrayScript.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/mxWebService/DotNetDocLiteralTests/"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/mxWebService/mxWebServiceAmpersandInWSDL.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/mxWebService/mxWebServiceDotDotInWSDL.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/mxWebService/mxWebServiceMethod*.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/mxWebService/mxWebServiceSetEndpointURI.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/mxWebService/mxWebServiceUseProxyFalseFault.mxml"/>
+                   <exclude name="apps/qa-regress/testsuites/mxunit/tests/proxyService/webService/mxWebService/mxWebServiceUseProxyTrue.mxml"/>
+
+                   <exclude name="apps/qa-regress/testsuites/flexunit/src/tests/flexunit/wscl/interop/Query*.*"/>
+                   <exclude name="apps/qa-regress/testsuites/flexunit/src/tests/flexunit/wscl/interop/*DotNet*"/>
+                   <exclude name="apps/qa-regress/testsuites/flexunit/src/tests/flexunit/wscl/interop/SOAPBuilderRound2CFCTest.as"/>
+                   <exclude name="apps/qa-regress/testsuites/flexunit/src/tests/flexunit/wscl/interop/SOAPBuilderRound3Compound1.as"/>
+                   <exclude name="apps/qa-regress/testsuites/flexunit/src/tests/flexunit/wscl/interop/SOAPBuilderRound3Compound1_WhiteMesaTest.as"/>
+
+                   <include name="features/**/*"/>
+
+                   <include name="lib/**/*"/>
+                   <exclude name="lib/tools/"/>
+                   <exclude name="lib/ms*.jar"/>
+               	   <exclude name="lib/commons-codec-1.3.jar"/>
+               	   <exclude name="lib/commons-httpclient-3.0.1.jar"/>
+               	   <exclude name="lib/commons-logging.jar"/>
+               	   <exclude name="lib/qa-config.jar"/>
+                   <exclude name="lib/qa-flexunit.jar"/>
+                   <exclude name="lib/qa-mxunit.jar"/>
+                   <exclude name="lib/qa-utils.jar"/>
+               	   <exclude name="lib/browserServer.jar"/>
+               	   <exclude name="lib/xalan.jar"/>
+
+                   <include name="resources/config/*"/>
+                   <include name="resources/frameworks/*"/>
+                   <include name="resources/webtier/*"/>
+                   <include name="src/**/*"/>
+                   <include name="build.*"/>
+               </zipfileset>
+
+
+               <!-- frameworks folder -->
+               <zipfileset dir="${basedir}/frameworks" prefix="frameworks">
+                   <include name="**/datavisualization*.swc"/>
+                   <include name="local-swcs/*"/>
+               </zipfileset>
+
+               <!-- lib folder -->
+               <zipfileset dir="${basedir}/lib" prefix="lib">
+                   <include name="hsqldb/*"/>
+                   <include name="spring/*"/>
+
+                   <include name="commons*.*"/>
+                   <exclude name="commons-logging.jar"/>
+                   <exclude name="commons-collections.jar"/>
+
+                   <include name="j*.*"/>
+                   <include name="flex-w*.*"/>
+                   <include name="flex-b*.*"/>
+                   <include name="xalan*.*"/>
+                   <include name="backport*.*"/>
+                   <include name="cfgatewayadapter.jar"/>
+                   <include name="concurrent.jar"/>
+                   <include name="oscache.jar"/>
+                   <include name="servlet.jar"/>
+               </zipfileset>
+
+               <!-- modules folder -->
+               <zipfileset dir="${basedir}/modules" prefix="modules">               	   
+                   <include name="**/src/**/*"/>
+                   <include name="**/lib/*"/>
+                   <include name="core/test/src/**/*"/>
+                   <include name="**/AdobeInfo.xml"/>
+                   <include name="**/build.xml"/>
+               	   <exclude name="rds/"/> 
+               </zipfileset>
+
+               <!-- servers folder -->
+               <zipfileset dir="${basedir}/servers" prefix="servers">
+                   <exclude name="apache-tomcat-6.0.14/lib/blazeds/"/>
+                   <exclude name="apache-tomcat-6.0.14/conf/Catalina/localhost/qa-perf.xml"/>
+               	   <exclude name="apache-tomcat-6.0.14/logs/"/>
+               	   <exclude name="apache-tomcat-6.0.14/work/"/>
+               </zipfileset>
+
+               <!-- resources folder -->
+            <zipfileset dir="${basedir}/resources" prefix="resources">
+                <exclude name="security/tomcat/*.jar"/>
+            </zipfileset>
+
+        </zip>
+    </target>
+
+
+    <target name="package-oem" description="Create OEM package">
+
+            <delete dir="${basedir}/packagetemp" failonerror="false" includeEmptyDirs="true"/>
+            <mkdir dir="${basedir}/dist"/>
+
+            <!-- Copy sdk zip and other community resources -->
+            <copy todir="${basedir}/packagetemp">
+                <fileset dir="${basedir}">
+                    <include name="resources/**/*"/>
+                    <exclude name="resources/flex_sdk/flex_sdk_4.zip"/>                    
+                </fileset>
+            </copy>
+
+            <!-- Copy community jars -->
+            <copy todir="${basedir}/packagetemp/lib">
+                <fileset dir="${basedir}/lib">
+                    <include name="flex-messaging-common.jar"/>
+                    <include name="flex-messaging-core.jar"/>
+                    <include name="flex-messaging-proxy.jar"/>
+                    <include name="flex-messaging-remoting.jar"/>
+                    <include name="flex-messaging-opt.jar"/>
+                    <include name="flex-bootstrap.jar"/>
+                    <include name="flex-bootstrap-jsp.jar"/>
+                    <include name="flex-webtier.jar"/>
+                    <include name="flex-webtier-jsp.jar"/>
+                    <include name="oscache.jar"/>
+                    <include name="cfgatewayadapter.jar"/>
+                    <include name="flex-rds-server.jar"/>
+                </fileset>
+                <fileset dir="${basedir}/lib/spring">
+                    <include name="**/*"/>
+                </fileset>
+            </copy>
+
+            <!-- Copy datavisualization.swc -->
+            <copy todir="${basedir}/packagetemp">
+                <fileset dir="${basedir}">
+                    <include name="frameworks/libs/datavisualization.swc"/>
+                </fileset>
+            </copy>
+
+            <!-- Copy datavisualization_rb.swc from locale -->
+            <copy todir="${basedir}/packagetemp">
+                <fileset dir="${basedir}">
+                    <include name="frameworks/locale/**/*"/>
+                </fileset>
+            </copy>
+
+            <zip destfile="${basedir}/dist/blazeds-oem.zip">
+                <fileset dir="${dist.dir}" includes="ds-console.war"/>
+                <zipfileset dir="${basedir}/packagetemp"/>
+            </zip>
+     </target>
+
+    <target name="package-oem-small" depends="package-oem" description="Create Small OEM package">
+        <echo message="Creating smaller Flex_SDK. . ."/>
+        <mkdir dir="${tmp.dir}"/>
+		<unzip src="${basedir}/dist/blazeds-oem.zip" dest="${tmp.dir}"/> 
+        <mkdir dir="${tmp.dir}/${local.sdk.dir}/expanded"/>
+		<unzip src="${basedir}/packagetemp/${local.sdk.dir}/${sdk.zip.file}" dest="${tmp.dir}/${local.sdk.dir}/expanded">
+		    <patternset>
+                <include name="ant/lib/flexTasks.jar" />
+          		<include name="asdoc/**/*"/>
+				<include name="bin/*"/>
+				<include name="lib/*"/>
+				<include name="frameworks/*"/>
+				<include name="frameworks/libs/**"/>
+				<include name="frameworks/locale/**"/>
+                <include name="runtimes/player/**/*"/>
+          		<include name="templates/**/*"/>
+	        </patternset>			
+        </unzip>
+        <delete includeEmptyDirs="true" quiet="true">
+            <fileset dir="${tmp.dir}/${local.sdk.dir}" includes="${sdk.zip.file}" />
+        </delete>
+        <zip destfile="${tmp.dir}/${local.sdk.dir}/${sdk.zip.file}">
+            <fileset dir="${tmp.dir}/${local.sdk.dir}/expanded" includes="**/**"/>
+        </zip>
+	    <delete dir="${tmp.dir}/${local.sdk.dir}/expanded" failonerror="false" />
+        <zip destfile="${basedir}/dist/blazeds-oem-small.zip">
+            <fileset dir="${tmp.dir}" includes="**/**"/>
+        </zip>
+	    <delete dir="${tmp.dir}" failonerror="false" />
+    </target>
+    
+    <target name="package-clean">
+        <delete failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${dist.dir}" includes="**/*"/>
+        </delete>
+    </target>
+
+    <target name="clean" description="clean">
+        <ant antfile="${basedir}/modules/sdk/build.xml" target="clean"/>
+        <ant antfile="${basedir}/modules/remoting/build.xml" target="clean"/>
+        <ant antfile="${basedir}/modules/proxy/build.xml" target="clean"/>
+        <ant antfile="${basedir}/modules/common/build.xml" target="clean"/>
+        <ant antfile="${basedir}/modules/core/build.xml" target="clean"/>
+        <ant antfile="${basedir}/modules/opt/build.xml" target="clean"/>
+        <ant antfile="${basedir}/apps/blazeds/build.xml" target="clean"/>
+        <ant antfile="${basedir}/apps/samples/build.xml" target="clean"/>
+        <ant antfile="${basedir}/apps/team/build.xml" target="clean"/>
+        <ant antfile="${basedir}/resources/fds-ajax-bridge/build.xml" target="clean"/>
+        <delete>
+            <fileset dir="." includes="TEST-*.xml"/>
+        </delete>
+
+        <delete>
+            <fileset dir="resources/clustering" includes="jgroups.jar,jgroups-LICENSE.txt" />
+        </delete>
+    </target>
+
+    <target name="generated-clean">
+        <delete includeEmptyDirs="true" quiet="true">
+            <fileset dir="${basedir}/apps" includes="**/generated/*" />
+        </delete>
+        <delete includeEmptyDirs="true" quiet="true">
+            <fileset dir="${basedir}/apps" includes="**/generated" />
+        </delete>
+    </target>
+
+    <target name="unit" description="Runs JUnit tests">
+        <ant antfile="${basedir}/modules/core/build.xml" target="unit"> 
+            <property name="feature" value="${feature}" /> <!-- runs subset of unit tests -->
+        </ant>
+    </target>
+
+    <!-- Don't try to start server if it is already running -->
+     <target name="check.server">
+        <condition property="server.running">
+            <http url="${server.baseurl}"/>
+        </condition>
+     </target>
+
+    <target name="set.extension" description="set vars per os">
+        <osfamily property="os.family"/>
+        <switch value="${os.family}">
+            <case value="windows">
+                <property name="shellext" value="bat"/>
+            </case>
+            <case value="unix">
+                <property name="shellext" value="sh"/>
+            </case>
+            <case value="mac">
+                <property name="shellext" value="sh"/>
+            </case>
+        </switch>
+    </target>
+
+    <target name="startserver" description="Start Tomcat Server" depends="set.extension, check.server"
+            unless="server.running">
+        <exec spawn="true" executable="${appserver.dir}/bin/catalina.${shellext}"
+            dir="${appserver.dir}/bin">
+            <arg line="start" />
+           </exec>
+    </target>
+
+    <target name="stopserver" description="Stop Tomcat Server"
+    depends="set.extension">
+        <exec spawn="true" executable="${appserver.dir}/bin/catalina.${shellext}"
+            dir="${appserver.dir}/bin">
+            <arg line="stop" />
+        </exec>
+    </target>
+
+    <target name="checkintests" description="checkintests">
+ 
+        <!-- run flexunit-->
+        <ant antfile="${qa.dir}/apps/qa-regress/testsuites/flexunit/build.xml" target="main" >
+            <property name="basedir" value="${qa.dir}" />
+            <property name="feature" value="checkintests" /> <!-- runs rpc and messaging -->
+            <property name="alwaysshowreport" value="false" /> <!-- will only show report if there are failures -->
+        </ant>
+   	
+        <!-- JUnit tests already start the server, if necessary 
+        <antcall target="startserver"/>
+        -->
+        <!-- run java unit tests -->
+    	<property name="feature" value="checkintests-all"/>
+        <antcall target="unit" >
+            <param name="feature" value="${feature}" /> <!-- runs subset of unit tests -->
+        </antcall>
+
+        <antcall target="stopserver"/>
+    </target>
+
+    <target name="parseresults">
+            <java classname="utils.TestResultsParser">
+            <classpath>
+                <pathelement location="${qa.dir}/classes"/>
+                <fileset dir="${qa.dir}/lib">
+                  <include name="*.jar" />
+                </fileset>
+            </classpath>
+            <arg line="${qa.dir}/sdk/testsuites/mxunit/reports"/>
+        </java>
+    </target>
+
+    <target name="ocx" description="Update the ActiveX player to the latest.  You must CLOSE YOUR BROWSERS for this to work.">
+        <property name="ant-contrib.jar" location="${env.ANT_HOME}/lib/ant-contrib-1.0b2.jar"/>
+    	
+    	
+    	<if>
+    		<equals arg1="${sdk.version}" arg2="3"/>
+    		<then>
+    			<property name="installer.exe" value="${fp9.installer.exe}"/>
+    			<property name="installer.plugin.exe" value="${fp9.installer.plugin.exe}"/>
+    		</then>
+    		<else>
+    			<property name="installer.exe" value="${fp10.installer.exe}"/>
+    		    <property name="installer.plugin.exe" value="${fp10.installer.plugin.exe}"/>
+    		</else>	
+    	</if>
+    	
+  
+        <available file="${basedir}/qa/automation/bin/${uninstaller.exe}" property="uninstaller.exists" />
+
+        <if>
+            <and>
+                <equals arg1="${uninstaller.exists}" arg2="true" />
+                <not>
+                    <equals arg1="${skip.uninstall}" arg2="true" />
+                </not>
+            </and>
+            <then>
+                <echo>Uninstalling the old ActiveX player.</echo>
+                <exec dir="${basedir}" executable="${basedir}/qa/automation/bin/${uninstaller.exe}" >
+                    <arg line="/S /clean" />
+                </exec>
+                <echo>Uninstalling the old Plugin player.</echo>
+                <exec dir="${basedir}" executable="${basedir}/qa/automation/bin/${uninstaller.plugin.exe}" >
+                    <arg line="/S /clean" />
+                </exec>
+            </then>
+            <else>
+                <echo>Uninstall was skipped.</echo>
+                <echo> - skip.uninstall? ${skip.uninstall}</echo>
+            </else>
+        </if>
+
+        <echo>Installing the new player.</echo>
+        <exec dir="${basedir}/bin" executable="${basedir}/bin/${installer.exe}">
+           <arg line="/S"/>
+        </exec>
+        <echo>Installing the plugin player.</echo>
+        <exec dir="${basedir}/bin" executable="${basedir}/bin/${installer.plugin.exe}">
+           <arg line="/S"/>
+        </exec>
+    </target>
+
+    <target name="javadoc">
+        <delete dir="${basedir}/docs" failonerror="false" includeEmptyDirs="true" />
+        <ant antfile="${basedir}/modules/core/build.xml" target="javadoc" >
+            <property name="build.number" value="${build.number}"/>
+        </ant>
+        <copy todir="${dist.dir}/docs" >
+            <fileset dir="${basedir}/docs" includes="javadoc.zip"/>
+        </copy>
+    </target>
+
+</project>

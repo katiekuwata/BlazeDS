@@ -1,0 +1,15 @@
+<services-config-mods-local>
+    <!--
+     The contents of this file will be used to make local mods to services-config.xml after
+     applying the services-config.mods.xml file.  The intent of this file is like that of
+     local.properties - to have some local only overrides.
+
+     Each child directly under the root has two extra attributes - parent and action.
+
+        parent - REQUIRED.  slash delimited path as to the parent node for the change
+        action - replace, add, delete.  Default is replace.
+
+    THE BASE PARENT FOR services-config.xml is "services-config".
+    -->
+
+</services-config-mods-local>

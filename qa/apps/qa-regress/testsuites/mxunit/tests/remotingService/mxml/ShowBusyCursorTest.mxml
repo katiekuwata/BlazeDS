@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+ <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+    <mx:RemoteObject id="roNonBusyCursor" destination="qa.remoting.Test" showBusyCursor="false" 
+        result="event.token.handler(event)" fault="event.token.handler(event)"/>
+    <mx:RemoteObject id="roBusyCursor" destination="qa.remoting.Test" showBusyCursor="true" 
+        result="event.token.handler(event)" fault="event.token.handler(event)"/>
+    <mx:RemoteObject id="roDefault" destination="qa.remoting.Test" 
+        result="event.token.handler(event)" fault="event.token.handler(event)"/>
+    <mx:Script>
+        <![CDATA[
+            import mx.managers.ICursorManager;
+            import mx.managers.CursorManager;
+            import mx.rpc.events.FaultEvent;
+            import mx.rpc.AsyncToken;
+            import qa.mxunit.MXUnitManager;
+            import qa.mxunit.Assert;
+            
+            private var mxunitManager: MXUnitManager;
+            
+            private function initApp():void
+            {
+                mxunitManager = MXUnitManager.getInstance();
+                var tests:Array = new Array();
+                tests.push("testShowBusyCursorFalse");
+                tests.push("testShowBusyCursorTrue");
+                tests.push("testShowBusyCursorDefault");
+                mxunitManager.addTests(this, tests, 7000);
+            }
+            
+            /**
+            *   Test no busy cursor before result when showBusyCursor is false
+            **/
+            public function testShowBusyCursorFalse():void
+            {
+                var async: Function = mxunitManager.currentTest.addAsync(verifyResult);
+                var call:AsyncToken = roNonBusyCursor.slowEchoString("abcde", 2000);
+                call.handler = async;
+                delayAssert({value:0}, 500);   
+            }
+            
+             /**
+            *   Test  busy cursor before result when showBusyCursor is true
+            **/
+            public function testShowBusyCursorTrue():void
+            {
+                var async: Function = mxunitManager.currentTest.addAsync(verifyResult);
+                var call:AsyncToken = roBusyCursor.slowEchoString("abcde", 2000);
+                call.handler = async;
+                delayAssert({value:1}, 500);   
+            }
+            /**
+            *   Test no busy cursor before result when showBusyCursor by default
+            **/
+            public function testShowBusyCursorDefault():void
+            {
+                var async: Function = mxunitManager.currentTest.addAsync(verifyResult);
+                var call:AsyncToken = roDefault.slowEchoString("abcde", 2000);
+                call.handler = async;
+                delayAssert({value:0}, 500);   
+            }
+            
+            
+            //Handlers and Utilts
+            private function  verifyResult(event:Object):void
+            {
+                if (event is FaultEvent)
+                {
+                    Assert.fail(event.fault.faultString);
+                }
+                else
+                {
+                    delayAssert({value:0}, 500);   
+                }   
+            }
+            
+            private function delayAssert(expectedResult: Object, delay:uint):void
+            {
+                var async: Function = mxunitManager.currentTest.addAsync(doDelayAssert, expectedResult);
+                var timer:Timer = new Timer(delay, 1);
+                timer.addEventListener(TimerEvent.TIMER, async);
+                timer.start();
+            }
+            
+            private function doDelayAssert(event:Object, expectedResult:Object):void
+            {
+                var id: int = CursorManager.currentCursorID;
+                var expectedID: int = expectedResult.value;
+                Assert.assertEquals(expectedID, id);   
+            }
+            
+        ]]>
+    </mx:Script>
+</mx:Application>

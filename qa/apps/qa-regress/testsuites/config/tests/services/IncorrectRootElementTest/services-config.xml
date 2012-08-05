@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<services-config>
+    <services>
+        <service-include file-path="messaging-config.xml"></service-include>
+	</services>
+	
+	<channels>
+		<channel-definition class="mx.messaging.channels.AMFChannel" id="my-channel">
+        	<endpoint class="flex.messaging.endpoints.AMFEndpoint" url="http://{server.name}:{server.port}/qa-regress/messagebroker/amfpolling"></endpoint>
+	        
+    	</channel-definition>
+    	
+    
+	</channels>
+	
+</services-config>

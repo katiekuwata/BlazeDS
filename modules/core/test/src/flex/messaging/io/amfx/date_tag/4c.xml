@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 4c
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/23/2005
+
+Tests that a simple ActionScript Array with date
+properties can be parsed from an AMFX stream.
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array length="3">
+            <date>1119647239994</date>
+            <date>1119647539994</date>
+            <date>1119647739994</date>
+        </array>
+    </body>
+</amfx>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	creationComplete="initApp()">
+
+	<!-- 
+		Simple client to demonstrate runtime configuration of destinations.
+		The "runtime-employee" destination is configured in 
+		EmployeeRuntimeRemotingDestination.java. 
+	-->
+
+	<mx:Script>
+		<![CDATA[
+			import mx.rpc.remoting.mxml.RemoteObject;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.channels.AMFChannel;
+			
+			[Bindable]
+			private var srv:RemoteObject;
+			
+			private function initApp():void
+			{
+				var channel:AMFChannel = new AMFChannel("my-amf", "../messagebroker/amf");
+				var channelSet:ChannelSet = new ChannelSet();
+				channelSet.addChannel(channel);
+				srv = new RemoteObject();
+				srv.destination="runtime-employee-ro";	
+				srv.channelSet = channelSet;
+				srv.getEmployees();
+			}
+			
+		]]>
+	</mx:Script>
+
+	<mx:Panel title="Employee List" width="100%" height="100%">
+		<mx:DataGrid width="100%" height="100%" dataProvider="{srv.getEmployees.lastResult}">
+			<mx:columns>
+				<mx:DataGridColumn headerText="First Name" dataField="firstName"/>
+				<mx:DataGridColumn headerText="Last Name" dataField="lastName"/>
+				<mx:DataGridColumn headerText="Title" dataField="title"/>
+				<mx:DataGridColumn headerText="Phone" dataField="phone"/>
+				<mx:DataGridColumn headerText="Email" dataField="email"/>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:Panel>
+	
+</mx:Application>

@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+    creationComplete="creationCompleteHandler();">
+
+    <!-- A simple remoting sample where client sends a text and server simply
+         echoes it back. The destination is secured using custom security constraint
+         where instead of a browser window for username and password, application 
+         itself handles authentication.
+    -->
+    <mx:Panel id="mainPanel" height="100%" width="100%">
+        <mx:HBox>
+            <mx:Label text="Username"/>
+            <mx:TextInput id="unameTI" text="sampleuser"/>
+            <mx:Label text="Password"/>
+            <mx:TextInput id="passTI" text="samplepassword"/>
+            <mx:Button label="Login" click="login(unameTI.text, passTI.text)"/>
+            <mx:Button label="Logout" click="logout()"/>
+            <mx:CheckBox id="authenticatedCB" label="Authenticated?" enabled="false"/>
+        </mx:HBox>
+        <mx:HBox>
+            <mx:Label text="Enter a text for the server to echo"/>
+            <mx:TextInput id="ti" text="Hello World!"/>
+            <mx:Button label="Echo" click="remoteObject.echo(ti.text);" enabled="{authenticatedCB.selected}"/>
+        </mx:HBox>
+        <mx:TextArea id="ta" width="100%" height="100%"/>
+    </mx:Panel>
+
+    <mx:RemoteObject id="remoteObject"
+        destination="remoting_AMF_SecurityConstraint_Custom"
+        result="resultHandler(event)"
+        fault="faultHandler(event)"/>
+
+    <mx:Script>
+        <![CDATA[
+            import mx.controls.Alert;
+            import mx.logging.Log;
+            import mx.logging.targets.TraceTarget;
+            import mx.messaging.config.ServerConfig;
+            import mx.rpc.AsyncResponder;
+            import mx.rpc.AsyncToken;
+            import mx.rpc.events.FaultEvent;
+            import mx.rpc.events.ResultEvent;
+
+            private function creationCompleteHandler():void
+            {
+                var target:TraceTarget = new TraceTarget();
+                target.includeLevel = true;
+                target.filters = ["mx.messaging.*", "mx.rpc.*"];
+                Log.addTarget(target);
+                
+                // Pre-initialize channelSet, so we can login.
+                if (remoteObject.channelSet == null)
+                    remoteObject.channelSet = ServerConfig.getChannelSet(remoteObject.destination);
+            }
+
+            private function login(username:String, password:String):void
+            {
+                // Login and handle success or failure of authentication 
+                var token:AsyncToken = remoteObject.channelSet.login(username, password);
+                token.addResponder(new AsyncResponder(
+                    function(event:ResultEvent, token:Object=null):void 
+                    {
+                        switch(event.result) 
+                        {
+                            case "success":
+                                authenticatedCB.selected = true;
+                            break;
+                            default:
+                                trace(event.result); 
+                        }
+                    },
+                    function(event:FaultEvent, token:Object=null):void
+                    {
+                        switch(event.fault.faultCode)
+                        {
+                            case "Client.Authentication":
+                            default:
+                                authenticatedCB.selected = false;
+                                Alert.show("Login failure: " + event.fault.faultString);
+                        }
+                    }));
+            }
+
+            private function logout():void
+            {
+                // Logout and handle success or failure of authentication 
+                var token:AsyncToken = remoteObject.channelSet.logout();
+                token.addResponder(new AsyncResponder(
+                    function(event:ResultEvent, token:Object=null):void 
+                    {
+                        switch (event.result) 
+                        {
+                            case "success":
+                                authenticatedCB.selected = false;
+                            break;
+                            default:
+                                trace(event.result); 
+                        }
+                    },
+                    function(event:FaultEvent, token:Object=null):void
+                    {
+                        trace(event.fault);
+                    }));
+            }
+
+            private function resultHandler(event:ResultEvent):void
+            {
+                ta.text += "Server responded: "+ event.result + "\n";
+            }
+
+            private function faultHandler(event:FaultEvent):void
+            {
+                ta.text += "Received fault: " + event.fault + "\n";
+            }
+
+        ]]>
+    </mx:Script>
+
+</mx:Application>

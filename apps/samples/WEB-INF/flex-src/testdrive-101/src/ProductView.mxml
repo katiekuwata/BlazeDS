@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" layout="horizontal" width="100%" height="100%"
+	title="Product Details" paddingLeft="12" paddingRight="12" paddingTop="12" paddingBottom="12">
+	
+	<mx:Object id="product"/>
+	
+	<mx:CurrencyFormatter id="cf"/>
+	
+	<mx:Image source="../images/{product.image}"/>
+
+	<mx:VBox width="100%" height="100%">
+		<mx:Label text="{product.name}" fontWeight="bold"/>
+		<mx:Label text="Price: {cf.format(product.price)}" styleName="price"/>
+		<mx:Text text="{product.description}" width="100%" height="100%"/>
+	</mx:VBox>
+			
+</mx:Panel>

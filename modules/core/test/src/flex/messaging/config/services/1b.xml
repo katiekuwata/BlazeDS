@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/27/2005
+
+Tests multiple service tags with adapters and default channels can be
+parsed from a Flex Data Services configuration file.
+ -->
+<services-config xmlns="http://www.adobe.com/2006/flex-enterprise-services">
+
+    <services>
+        <service id="foo-service"
+            class="flex.messaging.services.FooService"
+            messageTypes="flex.messaging.messages.FooMessage">
+
+            <adapters>
+                <adapter-definition class="flex.messaging.services.foo.FooAdapter" id="foo" />
+            </adapters>
+
+            <default-channels>
+                <channel ref="foo-channel" />
+            </default-channels>
+        </service>
+
+        <service id="bar-service"
+            class="flex.messaging.services.BarService"
+            messageTypes="flex.messaging.messages.BarMessage">
+
+            <adapters>
+                <adapter-definition class="flex.messaging.services.bar.BarAdapter" id="bar1" />
+                <adapter-definition class="flex.messaging.services.bar.BarAdapter" id="bar2" />
+            </adapters>
+
+            <default-channels>
+                <channel ref="bar-channel" />
+                <channel ref="foo-channel" />
+            </default-channels>
+       </service>
+
+    </services>
+
+    <channels>
+        <channel-definition id="foo-channel" class="mx.messaging.chanels.FooChannel">
+            <endpoint url="/foo" class="flex.messaging.endpoints.FooEndpoint"/>
+        </channel-definition>
+
+        <channel-definition id="bar-channel" class="mx.messaging.chanels.BarChannel">
+            <endpoint url="/bar" class="flex.messaging.endpoints.BarEndpoint"/>
+        </channel-definition>
+    </channels>
+
+</services-config>

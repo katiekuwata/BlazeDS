@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" > 
+<suite name="Configuration Exception Test Suite" verbose="1" >  
+	<test name="Configuration Exception Test">		
+		<classes>      
+			<class name="tools.config.testng.ConfigTest"  />      
+		</classes>  
+	</test>
+</suite>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-core"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/servlet.jar"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

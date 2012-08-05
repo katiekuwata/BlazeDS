@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 5c
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/23/2005
+
+Tests that a simple ActionScript Object with double
+properties can be parsed from an AMFX stream.
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <object>
+            <traits>
+                <string>prop0</string>
+                <string>prop1</string>
+                <string>prop2</string>
+                <string>prop3</string>
+                <string>prop4</string>
+            </traits>
+            <double>-7654321.251</double>
+            <double>-1.2345</double>
+            <double>5.6E-10</double>
+            <double>19.756893</double>
+            <double>7000000.22</double>
+        </object>
+    </body>
+</amfx>

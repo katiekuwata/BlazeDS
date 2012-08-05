@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="startup()">
+ <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+    <!-- Destination Definition -->
+    <!--
+    <destination id="qa.secured.methodExcludes.echoservice.Echo">
+        <properties>
+            <source>dev.echoservice.Echo</source>
+            <exclude-methods>
+            	<method name="echoShort"/>
+            	<method name="echoInt" security-constraint="sample-users-basic"/>
+            	<method name="echoIntClass" security-constraint="sample-users"/>
+            	<method name="echoLong" security-constraint="sample-managers"/>            	
+            </exclude-methods>
+        </properties>
+    </destination>
+    -->
+
+    <mx:RemoteObject id="ro" destination="qa.secured.methodExcludes.echoservice.Echo"
+        result="event.token.resultHandler(event)" fault="event.token.faultHandler(event)"/>
+    <mx:Script>
+        <![CDATA[
+            
+            import qa.mxunit.*;
+            import mx.rpc.events.*;
+            import mx.rpc.AsyncToken;
+
+            private function startup():void
+            {
+                //these tests have order dependency, please don't change
+                var tests:Array = new Array();
+                tests.push("testMethodEx");
+                tests.push("testMethodNotEx");
+                MXUnitManager.addTests(this, tests, 10000);   
+            }
+            /**
+            *    Invoke echoInt, but it is excluded from the destination
+            *    should recieve resource unavailable fault
+            *
+            **/
+            public function testMethodEx():void
+            {
+                var token:AsyncToken = ro.echoInt(2);
+                //if the token is null, it means the remote object failed to issue a call
+                Assert.assertNotNull("Unable to invoke remoteobject call", token);
+               
+                var handler:Function = MXUnitManager.getInstance().currentTest.addAsync(expectFaultHandler);
+                token.expected = "Server.ResourceUnavailable";
+                token.resultHandler = handler;
+                token.faultHandler = handler;
+            }
+            /**
+            *    Invoke echoInt, but it is not excluded from the destination
+            *    should recieve result
+            *
+            **/
+            public function testMethodNotEx():void
+            {
+                var expected:uint = 2;
+                var token:AsyncToken = ro.echoShortClass(expected);
+                Assert.assertNotNull("Unable to invoke remoteobject call", token);
+                var handler:Function = MXUnitManager.getInstance().currentTest.addAsync(expectResultHandler);
+                token.expected = expected;
+                token.resultHandler = handler;
+                token.faultHandler = handler;
+            }
+            
+            
+            private function expectResultHandler(event: Object):void
+            {
+                if (event is FaultEvent)
+                {
+                    Assert.fail(event.fault.faultString);
+                }
+                else
+                {
+                    Assert.assertEquals(event.result, event.token.expected);
+                }
+            }
+            
+            private function expectFaultHandler(event: Object):void
+            {
+                if (event is FaultEvent)
+                {
+                    Assert.assertEquals( event.token.expected, event.fault.faultCode);
+                }
+                else
+                {
+                    Assert.fail("Should not have result. Security enforced");
+                }
+            }
+            
+            
+        ]]>
+    </mx:Script>
+</mx:Application>

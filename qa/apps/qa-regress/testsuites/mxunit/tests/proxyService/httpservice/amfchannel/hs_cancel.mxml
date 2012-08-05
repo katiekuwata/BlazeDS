@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" ?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa" creationComplete="run()">
+	
+     <mx:HTTPService id="hs" useProxy="true" destination="basic.xml_amf" result="onServiceResult(event)" />     
+    	
+	<mx:Script>	
+	<![CDATA[
+        /****************************************************
+        *   HttpService cancel action test
+        * **************************************************/
+		import qa.mxunit.*;
+		import mx.rpc.events.*;
+
+		public var cancelTestCount:Number = 0;
+
+		public function onServiceResult(event:ResultEvent):void {
+			cancelTestCount++;
+		}
+
+		public function run_hs():void {
+			var call : Object = hs.send();
+			call.callPos = "first";
+			call = hs.send();
+			call.callPos = "second";
+			hs.cancel();
+		}
+
+		public function run():void {
+			run_hs();
+
+            MXUnitManager.delay = 6000;
+            MXUnitManager.addTests(this,["Test_cancel"],10000);
+		}
+
+        public function Test_cancel():void {
+			trace("cancelTestCount: " + cancelTestCount);
+       		Assert.isTrue(cancelTestCount==1, "cancel test count is not equal to 1");
+  		}
+
+	]]>
+	</mx:Script>
+</mx:Application>

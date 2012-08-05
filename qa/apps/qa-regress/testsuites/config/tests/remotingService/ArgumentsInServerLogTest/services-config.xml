@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<services-config>
+    <services>
+        <service-include file-path="remoting-config.xml"></service-include>
+    </services>
+    <servers>
+        <server class="flex.messaging.socketserver.SocketServer" id="nio-server"/>
+    </servers>
+    <channels>
+        <channel-definition class="mx.messaging.channels.AMFChannel" id="qa-amf">
+            <endpoint class="flex.messaging.endpoints.AMFEndpoint" url="http://{server.name}:{server.port}/qa-regress/messagebroker/amf"/>
+                <properties>
+                    <polling-enabled>false</polling-enabled>                    
+                  </properties>
+            </channel-definition>
+    </channels>
+    <logging>
+    <target class="flex.messaging.log.ServletLogTarget" level="Debug">
+        <properties>
+            <prefix>[Flex] </prefix>
+            <includeDate>false</includeDate>
+            <includeTime>true</includeTime>
+            <includeLevel>true</includeLevel>
+            <includeCategory>true</includeCategory>
+        </properties>
+        <filters>
+            <pattern>*</pattern>
+        </filters>
+    </target>
+    </logging>
+</services-config>

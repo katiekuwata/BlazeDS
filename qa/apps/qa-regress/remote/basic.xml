@@ -1,0 +1,12 @@
+<basic>
+    <string>string</string>
+    <integer>123</integer>
+    <float>123.123</float>
+    <boolean>true</boolean>
+    <array>1</array>
+    <array>2</array>
+    <array>3</array>
+    <object>
+        <property>value</property>
+    </object>
+</basic>

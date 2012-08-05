@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+                title="Login" showCloseButton="true"
+                creationComplete="doInit()" close="doClose(event)">
+
+    <mx:Script>
+    <![CDATA[
+        import mx.managers.PopUpManager;
+        import mx.core.Application;
+
+
+        private function doInit():void {
+            PopUpManager.centerPopUp(this);
+            this.focusManager.setFocus(username_input);            
+        }
+
+        private function doClose(event:Event):void {
+            visible = false;
+        }
+
+        private function setCredentials():void {
+            visible = false;
+            Application.application.username = username_input.text;
+            Application.application.password = password_input.text;
+            Application.application.login();
+        }
+    ]]>
+    </mx:Script>
+
+		<mx:Form id="theForm" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="10" width="100%" defaultButton="{submit}">
+			<mx:FormItem label="Username:" >
+                <mx:TextInput id="username_input" width="75"/>
+            </mx:FormItem>
+			<mx:FormItem label="Password:" >
+                <mx:TextInput id="password_input" width="75"/>
+            </mx:FormItem>
+            <mx:Button id="submit" label="submit" click="setCredentials()" />
+        </mx:Form>
+</mx:TitleWindow>

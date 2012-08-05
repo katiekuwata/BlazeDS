@@ -1,0 +1,14 @@
+<config>
+	<!--
+	- For an IPv4/IPv6 dual stack machine, JGroup will bind to the IPv4 address by default.  Use bind_addr to bind to the IPv6 address.
+	- When cluster members are bound to a mixed IPv4 and IPv6 addresses, do NOT use bind_addr to bind an IPv4 address.  Otherwise the member won't be discovered by IPv6 members.
+	-->
+    <TCP start_port="7800" bind_addr="127.0.0.1" loopback="true" enable_diagnostics="false"/>
+    <TCPPING timeout="3000" initial_hosts="localhost[7800]" port_range="3" num_initial_members="3"/>
+    <MERGE2 min_interval="10000" max_interval="20000"/>
+    <FD timeout="6000" max_tries="4"/>
+    <VERIFY_SUSPECT timeout="1500" down_thread="false" up_thread="false"/>
+    <pbcast.NAKACK gc_lag="100" retransmit_timeout="600,1200,2400,4800"/>
+    <pbcast.STABLE stability_delay="1000" desired_avg_gossip="20000" down_thread="false" max_bytes="0" up_thread="false"/>
+    <pbcast.GMS print_local_addr="true" join_timeout="5000" join_retry_timeout="2000" shun="true"/>
+</config>

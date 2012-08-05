@@ -1,0 +1,1 @@
+java -cp hsqldb.jar org.hsqldb.util.ShutdownServer -url jdbc:hsqldb:hsql://localhost:9002/flexdemodb

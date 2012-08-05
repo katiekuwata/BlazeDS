@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<services-config>
+    <services>
+    	<!-- Do NOT enable Advanced Messaging Support-->
+    	<!-- <service id="AdvancedMessagingSupport" class="flex.messaging.services.AdvancedMessagingSupport"/> -->
+        <service-include file-path="messaging-config.xml"></service-include>
+	</services>
+    <channels>
+		<channel-definition class="mx.messaging.channels.AMFChannel" id="qa-polling-amf">
+		        <endpoint class="flex.messaging.endpoints.AMFEndpoint" url="http://{server.name}:{server.port}/qa-regress/messagebroker/amfpolling"></endpoint>
+		        <properties>
+		            <polling-enabled>true</polling-enabled>
+		            <polling-interval-millis>2000</polling-interval-millis>
+		            <serialization>
+		                <legacy-collection>true</legacy-collection>
+		            </serialization>
+		        </properties>
+	    </channel-definition>
+	</channels>
+    <logging>
+    <target class="flex.messaging.log.ConsoleTarget" level="Debug">
+        <properties>
+            <prefix>[Flex] </prefix>
+            <includeDate>false</includeDate>
+            <includeTime>true</includeTime>
+            <includeLevel>true</includeLevel>
+            <includeCategory>true</includeCategory>
+        </properties>
+        <filters>
+			<pattern>Service.Message.Throttle</pattern>
+        </filters>
+    </target>
+	</logging>
+</services-config>

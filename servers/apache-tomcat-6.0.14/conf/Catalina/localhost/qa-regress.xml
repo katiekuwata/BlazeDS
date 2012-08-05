@@ -1,0 +1,32 @@
+<!--
+    
+    Context configuration file for the LCDS qa-regress webapp
+    
+-->
+
+<Context docBase="${catalina.home}/../../qa/apps/qa-regress" privileged="true"
+    antiResourceLocking="false" antiJARLocking="false" reloadable="true">
+    <Resource name="jms/flex/TopicConnectionFactory"
+                type="org.apache.activemq.ActiveMQConnectionFactory"
+                description="JMS Connection Factory"
+                factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+                brokerURL="vm://localhost"
+                brokerName="LocalActiveMQBroker"/>
+ 	<Resource name="jms/topic/flex/simpletopic"
+                type="org.apache.activemq.command.ActiveMQTopic"
+                description="my Topic"
+                factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+                physicalName="FlexTopic"/>
+	<Resource name="jms/flex/QueueConnectionFactory"
+                type="org.apache.activemq.ActiveMQConnectionFactory"
+                description="JMS Connection Factory"
+                factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+                brokerURL="vm://localhost"
+                brokerName="LocalActiveMQBroker"/>
+    <Resource name="jms/queue/flex/simplequeue"
+                type="org.apache.activemq.command.ActiveMQQueue"
+                description="my Queue"
+                factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+                physicalName="FlexQueue"/>                
+    <Valve className="flex.messaging.security.TomcatValve"/>
+</Context>

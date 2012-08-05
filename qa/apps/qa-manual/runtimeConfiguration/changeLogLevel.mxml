@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright [2007] Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa">
+
+    <!--
+        This application allows the user to change the server logging level: from Error to Debug (or vice-versa). 
+    -->	
+    <mx:RemoteObject destination="RuntimeLogTargets" id="ro"
+            fault="handleFault(event)"
+            result="handleResult(event)">
+    </mx:RemoteObject>
+
+    <mx:Panel id="mainPanel" title="Select a new log level for console messages" height="100%" width="100%"  
+            paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" >
+        <mx:List id="destList" selectedIndex="0" width="50%" rowCount="4" >
+	        <mx:dataProvider>
+	            <mx:String>Debug</mx:String>
+	            <mx:String>Error</mx:String>
+	            <mx:String>Warning</mx:String>
+	        </mx:dataProvider>
+		</mx:List>
+        <mx:Button label="Change Log level" click="changeLevel()"/>
+        <mx:TextArea id="output" width="100%" height="100%"/>         
+    </mx:Panel>
+    	
+	<mx:Script>
+	<![CDATA[
+        import mx.rpc.events.*;
+		import mx.rpc.remoting.*;
+		import mx.messaging.*;		
+		import mx.messaging.channels.*;
+
+
+        private function handleResult(event:ResultEvent):void {
+            output.text += "Current log level: " + event.result + "\n";
+        }
+
+        private function handleFault(event:FaultEvent):void {
+            output.text += "-> remoting fault: " + event.fault.faultString + "\n";
+        }
+
+        private function changeLevel():void
+        {
+			ro.createLogTarget(destList.selectedItem as String);     
+        }
+	]]>
+	</mx:Script>
+    
+</mx:Application>

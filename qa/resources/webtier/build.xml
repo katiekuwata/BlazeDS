@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!--
+/*************************************************************************
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ **************************************************************************/
+
+-->
+<project name="qa/resources/webtier/build.xml" default="main" basedir="../../..">
+
+    <!-- properties -->
+    <property file="${basedir}/build.properties" />
+	<property environment="env"/>
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${env.ANT_HOME}/lib/ant-contrib-1.0b2.jar"/>
+
+    <property name="lib.dir" value="${basedir}/lib"/>
+	<property name="webtier.dir" value="${basedir}/qa/resources/webtier"/>
+	<property name="config.dir" value="${basedir}/qa/resources/config"/>
+	
+	<patternset id="webtier.jars">	
+		<include name="flex-bootstrap.jar"/>
+		<include name="flex-bootstrap-jsp.jar"/>
+		<include name="flex-webtier.jar"/>				  			
+		<include name="flex-webtier-jsp.jar"/>	
+		<include name="oscache.jar"/>	
+	</patternset>
+	
+	<target name="main" depends="clean,copy" description="cleans and copies the sdk libraries from the development location" />
+
+    
+	<target name="clean" description="clean">
+        <delete failonerror="true" includeEmptyDirs="true" verbose="true">
+        	<fileset dir="${lib.dir}">
+        	     <patternset refid="webtier.jars"/>
+            </fileset>                         
+        </delete>
+		<delete failonerror="false">
+			<fileset dir="${config.dir}">
+				<include name="flex*.xml"/>
+			</fileset>
+		</delete>
+    </target> 
+	
+	<target name="copy">		
+        <!-- copy version specific webtier jars -->		
+		<copy todir="${lib.dir}">
+            <fileset dir="${webtier.dir}/flex_sdk_${sdk.version}/">
+            	<patternset refid="webtier.jars"/>
+            </fileset>
+        </copy>
+		
+		<!-- copy version specific config files -->
+		<copy todir="${config.dir}">
+			<fileset dir="${webtier.dir}/flex_sdk_${sdk.version}/">
+				<include name="flex*.xml"/>
+				<include name="air*.xml"/>
+			</fileset>
+		</copy>	
+
+     </target>
+        
+
+
+</project>

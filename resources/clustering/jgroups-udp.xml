@@ -1,0 +1,54 @@
+<config>
+	<!--
+	- When deploying JGroup on an IPv4/IPv6 dual stack machine, it doesn't support bind_to_all_interfaces in the UDP config.  Set bind_to_all_interface to false and explicitly set the bind_addr
+	- to the target using either IPv4 or IPv6 address. For example,  <UDP ... bind_to_all_interface="false" bind_addr="192.158.0.100" />
+	- When cluster members are bound to a mixed IPv4 and IPv6 addresses, the IPv6 members won't be able to discover IPv4 member when using UDP setting.  Use TCP setting instead.
+	-->
+    <UDP mcast_send_buf_size="32000"
+        mcast_port="45566"
+        ucast_recv_buf_size="64000"
+        bind_addr="127.0.0.1"
+        mcast_addr="228.8.8.8"
+        bind_to_all_interfaces="true"
+        loopback="true"
+        mcast_recv_buf_size="64000"
+        max_bundle_size="60000"
+        max_bundle_timeout="30"
+        use_incoming_packet_handler="false"
+        use_outgoing_packet_handler="false"
+        ucast_send_buf_size="32000"
+        ip_ttl="32"
+        enable_bundling="false"/>
+    <PING timeout="2000"
+        num_initial_members="2"/>
+    <MERGE2 max_interval="10000"
+        min_interval="5000"/>
+    <FD timeout="2000"
+        max_tries="3"
+        shun="true"/>
+    <VERIFY_SUSPECT timeout="1500"/>
+    <pbcast.NAKACK max_xmit_size="8192"
+        gc_lag="50"
+        retransmit_timeout="600,1200,2400,4800"/>
+    <UNICAST timeout="1200,2400,3600"/>
+    
+    <!--
+    - desired_avg_gossip: periodically sends STABLE messages around. 0 disables this
+    - max_bytes: max number of bytes received from anyone until a STABLE message is sent. Use either this or
+                 desired_avg_gossip, but not both ! 0 disables it.
+    - stability_delay: range (number of milliseconds) that we wait until sending a STABILITY message.
+      This prevents STABILITY multicast storms. If max_bytes is used, this should be set to a low value (> 0 though !).
+    -->
+    <!--
+    <pbcast.STABLE stability_delay="1000"
+        desired_avg_gossip="20000"
+        max_bytes="0"/>-->
+    <FRAG frag_size="8192"
+        down_thread="false"
+        up_thread="false"/>
+    <pbcast.GMS print_local_addr="true"
+        join_timeout="3000"
+        join_retry_timeout="2000"
+        shun="true"/>
+    <pbcast.STATE_TRANSFER up_thread="false" down_thread="false" />
+</config>

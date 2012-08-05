@@ -1,0 +1,131 @@
+<flex-remoting-service-mods>
+    <!--
+     The contents of this file will be used to modify an existing remoting-config.xml file so
+     there is no need to maintain an entire config file.
+
+     Each child directly under the root has two extra attributes - parent and action.
+
+        parent - REQUIRED.  slash delimited path as to the parent node for the change
+        action - replace, add, delete.  Default is replace.
+
+    Local overrides are encouraged to be in remoting-config.mods.local.xml
+
+    THE BASE PARENT FOR flex-remoting-service is "service".
+    -->
+
+
+    <default-channels parent="service">
+        <channel ref="data-amf"/>
+        <channel ref="data-http"/>
+    </default-channels>
+
+
+    <destination parent="service" id="qa.echoservice.Echo">
+        <properties>
+            <source>dev.echoservice.Echo</source>
+        </properties>
+    </destination>
+
+
+    <destination parent="service" id="qa.remoting.Test">
+        <properties>
+            <source>dev.remoting.TestServices</source>
+            <scope>session</scope>
+        </properties>
+    </destination>
+
+
+    <destination parent="service" id="qa.stateless.remoting.Test">
+        <properties>
+            <source>dev.remoting.TestServices</source>
+        </properties>
+    </destination>
+
+
+    <destination parent="service" id="qa.secured.echoservice.Echo">
+        <channels>
+            <channel ref="data-amf"/>
+            <channel ref="data-http"/>
+        </channels>
+        <properties>
+            <source>dev.echoservice.Echo</source>
+            <scope>session</scope>
+        </properties>
+        <security>
+            <security-constraint ref="sample-users"/>
+        </security>
+    </destination>
+
+
+    <destination parent="service" id="qa.secured.remoting.Test">
+        <channels>
+            <channel ref="data-amf"/>
+            <channel ref="data-http"/>
+        </channels>
+        <properties>
+            <source>dev.remoting.TestServices</source>
+            <scope>session</scope>
+        </properties>
+        <security>
+            <security-constraint ref="sample-users"/>
+        </security>
+    </destination>
+
+    
+
+    <destination id="RuntimeLogTargets" parent="service">
+       <properties>
+           <source>runtimeconfig.remoteobjects.RuntimeLogTargets</source>
+       </properties>
+    </destination>
+    
+    <destination id="RuntimeManagement" channels="data-amf" parent="service">
+        <properties>
+            <source>flex.management.jmx.MBeanServerGateway</source>
+        </properties>
+    </destination>
+    
+    
+    <destination id="perf.company.CompanyInfo" parent="service">
+        <properties>
+            <source>perf.company.CompanyInfo</source>
+            <scope>request</scope>
+        </properties>
+    </destination>
+
+    <destination id="qa.http.secured.PCA.echoservice.Echo" parent="service">       
+        <properties>
+            <source>dev.echoservice.Echo</source>
+            <scope>session</scope>
+        </properties>
+        <security>
+            <security-constraint ref="sample-users-per-client-authentication"></security-constraint>
+        </security>
+    </destination>
+    <destination id="qa.messaging.throttle.ROPushServerMessage" parent="service">
+        <channels>
+            <channel ref="data-amf-longpoll"/>
+            <channel ref="data-polling-amf"/>
+            <channel ref="data-amf"/>
+        </channels>
+        <properties>
+            <source>qa.messaging.throttle.ROPushServerMessage</source>
+            <scope>application</scope>
+        </properties>
+    </destination>
+    <destination id="RPCDstRTMP" parent="service">
+        <properties>
+            <source>com.adobe.samples.hsbc.MessageSender</source>
+        </properties>
+        <channels>
+              <channel ref="qa-streaming-amf"/>
+              <channel ref="data-polling-amf"/>
+        </channels>
+    </destination>
+    <destination id="ClientManager" channels="data-amf" parent="service">
+        <properties>
+            <source>messaging.ClientManagerRO</source>
+            <scope>application</scope>
+        </properties>        
+    </destination>
+</flex-remoting-service-mods>

@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initTest()">
+	<mx:RemoteObject id="ro" destination="InstantiationTest" />
+
+	<mx:Script>
+		<![CDATA[
+			import flexunit.framework.Assert;
+			
+			import mx.*;
+			import mx.collections.ArrayCollection;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.channels.AMFChannel;
+			import mx.rpc.events.FaultEvent;
+			import mx.utils.URLUtil;
+			
+			import qa.mxunit.MXUnitManager;
+			
+			private var tm:MXUnitManager;
+
+			
+			private function initTest():void
+			{
+				var cs:ChannelSet = new ChannelSet();
+				var nameWport:String = URLUtil.getServerNameWithPort(Application.application.url);
+				var amfChannel:AMFChannel = new AMFChannel("qa-amf-not-instantiate","http://" +nameWport+ "/qa-regress/messagebroker/amfNotInstantiate");
+				cs.addChannel(amfChannel);
+				ro.channelSet = cs;
+				
+				tm = MXUnitManager.getInstance();
+				tm.detectTests(this, 30000);
+			}
+			
+			public function testSimpleNoAlias():void
+			{
+				tm.currentTest.tokenAssertEquals( ro.getASObjectType(new NoRemoteAliasBook()),">NoRemoteAliasBook");
+			}
+			
+			public function testNotRemoteClass():void
+			{
+				tm.currentTest.tokenAssertEquals( ro.getASObjectType(new SuperBook()),null);
+			}
+			
+			public function testSimpleCustom():void
+			{
+				tm.currentTest.tokenAssertEquals( ro.getASObjectType(new Book()),"blazeds.qa.remotingService.Book");
+			}
+			
+			public function testObject():void
+			{
+				tm.currentTest.tokenAssertEquals( ro.getASObjectType(new Object()),null);
+			}
+			
+			/*
+			Use TestTypedObject class as a testing object
+			public Collection theCollection; values [Book, HashMap, [Book, HashMap]]
+			public HashMap map;  {book:Book, hashmap:HashMap}
+			public TestTypedObject me;
+			private Object _prop1;  Book
+			//public transient double myNo = 0.2;
+			private String _prop2="b";
+			*/
+			public function testComplexCustom():void
+			{
+				var to:TestTypedObject = new TestTypedObject();				
+				to.map = new Object();
+				to.map.book = new Book();
+				to.map.hashmap = new Object();
+				to.theCollection = [to.map.book, to.map.hashmap, new ArrayCollection([new Book(), new Object()])];
+				to.me = to;
+				tm.currentTest.tokenChain(ro.getTypedObjectASObjectTypes(to),
+					function (event:Object, extra:Object):void
+					{
+						if (event is FaultEvent)
+						{
+							Assert.fail(event.fault.faultString);
+						}
+						else
+						{
+
+							Assert.assertEquals("blazeds.qa.remotingService.TestTypedObject", event.result.main);
+							Assert.assertEquals("blazeds.qa.remotingService.Book", event.result["theCollection0"]);
+							Assert.assertEquals(null, event.result["theCollection1"]);
+							Assert.assertEquals("blazeds.qa.remotingService.Book", event.result["theCollection2.0"]);
+							Assert.assertEquals(null, event.result["theCollection2.1"]);
+							Assert.assertEquals("blazeds.qa.remotingService.Book", event.result.mapbook);
+							Assert.assertEquals(null, event.result.hashmap);
+							Assert.assertEquals("blazeds.qa.remotingService.TestTypedObject", event.result.me);
+							Assert.assertEquals(null, event.result.map);
+
+						}
+					}
+				);
+			}	
+		]]>
+	</mx:Script>
+</mx:Application> 

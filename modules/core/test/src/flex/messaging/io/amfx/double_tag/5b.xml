@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 5b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/23/2005
+
+Tests that boundary conditions for ActionScript
+double values can be parsed from an AMFX stream.
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <object>
+            <traits>
+                <string>prop0</string>
+                <string>prop1</string>
+                <string>prop2</string>
+                <string>prop3</string>
+                <string>prop4</string>
+                <string>prop5</string>
+                <string>prop6</string>
+                <string>prop7</string>
+                <string>prop8</string>
+                <string>prop9</string>
+                <string>prop10</string>
+            </traits>
+
+            <!-- Negative double.MAX_VALUE -->
+            <double>-1.7976931348623157e+308</double>
+
+            <!-- Negative double.MIN_VALUE -->
+            <double>-4.9E-324</double>
+
+            <!-- 0 -->
+            <double>0</double>
+
+            <!-- 0.0 -->
+            <double>0.0</double>
+
+            <!-- double.MIN_VALUE -->
+            <double>4.9e-324</double>
+
+            <!-- double.MAX_VALUE -->
+            <double>1.7976931348623157E+308</double>
+
+            <!-- NaN (This value is case sensitive) -->
+            <double>NaN</double>
+
+            <!-- So large it should result in infinity -->
+            <double>1.0e+3089</double>
+
+            <!-- So negative it should result in negative infinity -->
+            <double>-1.0e+3089</double>
+
+            <!-- Infinity (This value is case sensitive) -->
+            <double>Infinity</double>
+
+            <!-- Negative Infinity (This value is case sensitive) -->
+            <double>-Infinity</double>
+
+        </object>
+    </body>
+</amfx>

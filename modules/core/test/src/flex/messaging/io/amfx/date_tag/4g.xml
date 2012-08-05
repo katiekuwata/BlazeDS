@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 4g
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests that an invalid value for a date value will
+be caught in parsing an AMFX formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <date>-57411036000009999999999</date>
+    </body>
+</amfx>

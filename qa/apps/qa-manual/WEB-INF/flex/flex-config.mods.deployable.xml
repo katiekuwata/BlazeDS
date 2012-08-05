@@ -1,0 +1,4 @@
+<flex-config-mods>
+    <!-- This is applied in zip and package target calls AFTER flex-config.mods.xml. -->
+
+</flex-config-mods>

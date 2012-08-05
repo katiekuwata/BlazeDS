@@ -1,0 +1,6 @@
+<!--
+Enable the TomcatValve for custom login support from this webapp.
+-->
+<Context>
+	<Valve className="flex.messaging.security.TomcatValve"/>
+</Context>

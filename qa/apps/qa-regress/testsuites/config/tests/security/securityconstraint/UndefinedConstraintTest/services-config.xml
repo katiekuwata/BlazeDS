@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<services-config>
+	
+	<channels>
+		<channel-definition class="mx.messaging.channels.AMFChannel" id="qa-polling-amf">
+        	<endpoint class="flex.messaging.endpoints.AMFEndpoint" url="http://{server.name}:{server.port}/qa-regress/messagebroker/amfpolling"></endpoint>
+	        <properties>
+	            <polling-enabled>true</polling-enabled>
+	            <polling-interval-millis>2000</polling-interval-millis>
+	            <serialization>
+	                <legacy-collection>true</legacy-collection>
+	            </serialization>
+	        </properties>
+    	</channel-definition>
+	</channels>
+	
+<services>	
+<service class="flex.messaging.services.RemotingService" id="remoting-service">	
+	
+	<default-channels>    
+        <channel ref="qa-polling-amf"/>        
+    </default-channels>
+	
+	<destination id="qa.secured.nestedConstraints.echoservice.Echo">
+        <properties>
+            <source>blazeds.qa.remotingService.Echo</source>         
+        </properties>
+        <security>
+            <security-constraint ref="foo"></security-constraint>
+        </security>
+    </destination>
+	
+</service>	
+</services>
+	
+ <security>
+        <login-command class="flex.messaging.security.TomcatLoginCommand" server="tomcat"/>
+
+ </security>
+ 
+</services-config>

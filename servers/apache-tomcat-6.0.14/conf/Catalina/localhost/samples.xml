@@ -1,0 +1,4 @@
+<Context docBase="${catalina.home}/../../apps/samples" privileged="true"
+    antiResourceLocking="false" antiJARLocking="false" reloadable="true">
+
+</Context>

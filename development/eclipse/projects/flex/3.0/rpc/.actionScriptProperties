@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties mainApplicationPath="rpc.as" version="3">
+  <compiler additionalCompilerArguments="-locale=en_US,ja_JP" copyDependentFiles="false" enableModuleDebug="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersion="9.0.0" htmlPlayerVersionCheck="true" outputFolderPath="libs" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
+    <compilerSourcePath>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${FLEX_SDK}/frameworks/projects/rpc/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${FLEX_SDK}/frameworks/projects/rpc/bundles/en_US"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${FLEX_SDK}/frameworks/projects/rpc/bundles/ja_JP"/>
+    </compilerSourcePath>
+    <libraryPath defaultLinkType="1">
+      <libraryPathEntry kind="3" linkType="2" path="${FLEX_SDK}/frameworks/libs/player/10/playerglobal.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="2" path="${FLEX_SDK}/frameworks/libs/framework.swc" sourcepath="${FLEX_SDK}/frameworks/projects/framework/src" useDefaultLinkType="false"/>
+    </libraryPath>
+    <sourceAttachmentPath>
+      <sourceAttachmentPathEntry kind="3" linkType="2" path="${FLEX_SDK}/frameworks/libs/framework.swc" sourcepath="${FLEX_SDK}/frameworks/projects/framework/src" useDefaultLinkType="false"/>
+    </sourceAttachmentPath>
+  </compiler>
+  <applications/>
+  <modules/>
+  <buildCSSFiles/>
+</actionScriptProperties>

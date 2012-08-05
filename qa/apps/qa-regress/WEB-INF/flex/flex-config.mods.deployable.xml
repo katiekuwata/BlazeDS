@@ -1,0 +1,18 @@
+<flex-config-mods>
+    <!--
+     The contents of this file will be used to modify an existing flex-config.xml file so
+     there is no need to maintain an entire config file.
+
+     Each child directly under the root has two extra attributes - parent and action.
+
+        parent - REQUIRED.  slash delimited path as to the parent node for the change
+        action - replace, add, delete.  Default is replace.
+
+    Local overrides are encouraged to be in flex-config.mods.local.xml
+
+    THE BASE PARENT FOR flex-config.xml is "flex-config".
+    -->
+    <path-element parent="flex-config/compiler/source-path" action="add">/../../testsuites/flexunit/src</path-element>
+</flex-config-mods>
+
+  

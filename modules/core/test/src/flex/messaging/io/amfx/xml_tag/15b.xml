@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 15b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/1/2005
+
+Tests a simple CDATA wrapped xml value can be parsed from an AMFX
+formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <xml><![CDATA[
+<stock>
+    <item id="5">
+        <discontinued />
+    </item>
+</stock>
+        ]]></xml>
+    </body>
+</amfx>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"  applicationComplete="run()">
+  
+    <mx:TextArea id="output" x="95" y="368" width="432" height="293"/>
+    
+    <mx:HTTPService id="myService" 
+        useProxy="true"
+        destination="echoParams_http"
+        resultFormat = "object"
+        result="onServiceResult(event)"
+		fault="onServiceFault(event)"
+		makeObjectsBindable="false" 
+		contentType="application/x-www-form-urlencoded"
+		/>
+		
+    <mx:HTTPService id="myServiceSecured" 
+        useProxy="true"
+        destination="echoParamsSecure_http"
+        resultFormat = "object"
+        result="onServiceResultSecured(event)"
+		fault="onServiceFaultSecured(event)"
+		makeObjectsBindable="false" 
+		contentType="application/x-www-form-urlencoded"
+		/>
+		
+		
+    <mx:Script>
+        <![CDATA[
+            /****************************************************
+            *  HTTPService test for SDK bug 11229 
+            * **************************************************/
+        
+            import mx.controls.Alert;
+
+            import mx.utils.ObjectUtil;
+            import qa.mxunit.*;
+            import mx.rpc.events.*;
+            
+            public var request:Object = {param1:"Anonymous"};
+            
+            private var cred:Object = {username:"employee", password:"employee"};
+            private var cred2:Object = {username:"sampleuser", password:"samplepassword"};
+            
+            public var result:String = "";
+            public var resultSecured:String = "";
+            
+            public function run():void
+            {
+                myService.setCredentials(cred["username"], cred["password"]);
+                myService.send(request);
+                
+                MXUnitManager.delay = 5000;
+                MXUnitManager.addTests(this,["Test_DefaultSecurity", "Test_YieldToPredefinedConstraintSecurity"],1000);
+            }
+			private function onServiceFault(event:FaultEvent):void
+			{
+			    result = event.fault.faultString + " \n" + event.fault.faultDetail + "\n";
+			    myService.logout();
+			}
+			private function onServiceResult(event:ResultEvent):void
+			{
+			    var t:Timer = new Timer(100, 1);
+			    t.addEventListener(TimerEvent.TIMER_COMPLETE, onTimer);
+			    result = event.result.parameters["param1"];
+			    myService.logout();
+			    t.start();
+			}
+			private function onTimer(event:TimerEvent):void
+		    {
+                myServiceSecured.setCredentials(cred2["username"], cred2["password"]);
+                myServiceSecured.send(request);
+		    }
+
+			private function onServiceFaultSecured(event:FaultEvent):void
+			{
+			    resultSecured = event.fault.faultString + " \n" + event.fault.faultDetail + "\n";
+			    myServiceSecured.logout();
+			}
+			private function onServiceResultSecured(event:ResultEvent):void
+			{
+			    resultSecured = event.result.parameters["param1"];
+			    myServiceSecured.logout();
+			}
+
+    		public function Test_DefaultSecurity():void 
+    		{
+    			dump("destination = echoParams_http,  result =  " + result);
+    			Assert.isTrue(result == "Anonymous", "fail to get echo param back.  fault:" + result);
+    		}
+
+    		public function Test_YieldToPredefinedConstraintSecurity():void
+    		{
+    			dump("destination = echoParamsSecure_http,  result =  " + resultSecured);
+    			Assert.isTrue(resultSecured == "Anonymous", "fail to get echo param back.  fault:" + resultSecured);
+    		}
+
+            private function dump(obj:Object):void
+            {
+                this.output.text += "-----------------------------------------\n";
+                this.output.text += "--> " + ObjectUtil.toString(obj) + "\n";
+                this.output.text += "-----------------------------------------\n";
+            }
+        ]]>
+    </mx:Script>
+
+    
+</mx:Application>

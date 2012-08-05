@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 12b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests an object traits sent by reference can be parsed from
+an AMFX formatted stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array length="3">
+            <object>
+                <traits>
+                    <string>prop0</string>
+                    <string>prop1</string>
+                    <string>prop2</string>
+                </traits>
+                <true/>
+                <false/>
+                <false/>
+            </object>
+            <object>
+                <traits id="0" />
+                <false/>
+                <false/>
+                <false/>
+            </object>
+            <object>
+                <traits id="0" />
+                <true/>
+                <true/>
+                <false/>
+            </object>
+        </array>
+    </body>
+</amfx>

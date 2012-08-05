@@ -1,0 +1,22 @@
+<flex-webtier-config-mods>
+    <!--
+     The contents of this file will be used to modify an existing flex-server-config.xml file so
+     there is no need to maintain an entire config file.
+
+     Each child directly under the root has two extra attributes - parent and action.
+
+        parent - REQUIRED.  slash delimited path as to the parent node for the change
+        action - replace, add, delete.  Default is replace.
+
+    Local overrides are encouraged to be in flex-server-config.mods.local.xml
+    -->    
+
+    <generate-profile-swfs parent="flex-webtier-config/debugging">false</generate-profile-swfs>
+
+    <show-override-warnings parent="flex-webtier-config/debugging">false</show-override-warnings>
+
+    <create-compile-report parent="flex-webtier-config/debugging">true</create-compile-report>
+
+    <use-express-install parent="flex-webtier-config/flash-player">false</use-express-install>
+</flex-webtier-config-mods>
+

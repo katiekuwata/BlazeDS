@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox  xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%">
+    <mx:TextArea width="100%" height="20%" editable="false" enabled="true" fontSize="12" paddingLeft="10" paddingRight="10">
+        <mx:htmlText>
+        <![CDATA[
+        <font size="18">Welcome to the <strong>Administration Console</font><br />
+        Get started by choosing a panel in the tab navigation above.<br />
+        ]]>
+        </mx:htmlText>
+    </mx:TextArea>
+</mx:VBox>

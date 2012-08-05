@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="horizontal"
+	creationComplete="srv.getRoomList()">
+
+	<mx:RemoteObject id="srv" destination="chat-room-service" 
+		fault="Alert.show(event.fault.rootCause.message, 'Error')"/>
+
+	<mx:Panel title="Room List" width="100%" height="100%" paddingTop="4" paddingLeft="4" paddingBottom="4" paddingRight="4">
+
+		<mx:Label text="Select a room and start chatting in the right panel:"/>
+		<mx:List id="list" dataProvider="{srv.getRoomList.lastResult}" width="100%" height="100%"/>
+
+		<mx:ControlBar>
+			<mx:VBox width="100%">
+				<mx:Button label="Refresh" click="srv.getRoomList()"/>
+				<mx:Spacer height="2"/>
+				<mx:HRule width="100%" height="1"/>
+				<mx:Label text="Create a room:"/>
+				<mx:HBox>
+					<mx:TextInput id="room"/>
+					<mx:Button label="Create" click="srv.createRoom(room.text)" enabled="{room.text.length>0}"/>
+				</mx:HBox>
+			</mx:VBox>
+		</mx:ControlBar>		
+		
+	</mx:Panel>
+	
+	<ChatPanel title="Chat" room="{list.selectedItem}"/>
+
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+		]]>
+	</mx:Script>
+	
+</mx:Application>

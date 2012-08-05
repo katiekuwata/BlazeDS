@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<mx:Application  xmlns:mx="http://www.adobe.com/2006/mxml"
+        xmlns:qa="http://www.adobe.com/2006/flexqa"
+        creationComplete="run()">
+
+    <mx:Label fontSize="16" text="mxunit test: testCaptureImage" />
+    <qa:MXUnit id="testCaptureImageNotNull" timeout="5000"/>
+    <qa:MXUnit id="testCaptureImageWidth" timeout="5000"/>
+    <qa:MXUnit id="testCaptureImageHeight" timeout="5000"/>
+    <qa:MXUnit id="testCaptureImageDataNotNull" timeout="5000"/>
+    <qa:MXUnit id="testCaptureImageContentType" timeout="5000"/>
+    <qa:MXUnit id="testCaptureImageRemoteObject" timeout="5000"/>
+    
+     <!-- This RemoteObject is used to pass an ImageSnapshot to the server for code coverage.
+          It deserializes to the java class flex.graphics.ImageSnapshot -->
+     <mx:RemoteObject destination="ImageSnapshotType" id="ro"
+            result="roHandler(event)" fault="roHandler(event)"/>
+            
+    <mx:Script>
+    <![CDATA[
+    import mx.utils.ObjectUtil;
+    
+    import flash.display.Bitmap;
+    import mx.collections.ArrayCollection;
+    import mx.core.IFlexDisplayObject;
+    import mx.graphics.ImageSnapshot;
+    
+    import mx.rpc.events.ResultEvent;
+    import mx.rpc.events.FaultEvent;
+    import qa.mxunit.MXUnitManager;
+    import qa.mxunit.Assert;
+
+    [Bindable]
+    public var earnings:ArrayCollection = new ArrayCollection([
+    {Year:2003, Earnings:1.59},
+    {Year:2004, Earnings:1.85},
+    {Year:2005, Earnings:2.01},
+    {Year:2006, Earnings:2.59}]);
+    
+    public var snapshot:ImageSnapshot;
+    public var snapshot2:ImageSnapshot;
+    
+    private function run():void
+    {
+        var dpi:Number = Capabilities.screenDPI * 2;
+        snapshot = ImageSnapshot.captureImage(earningsChart, dpi);
+        ro.setSnapshot(snapshot);
+
+        testCaptureImageNotNull.doAssert(snapshot != null, "snapshot should not be null");
+        testCaptureImageWidth.doAssert(snapshot.width == (earningsChart.width * 2), "snapshot.width should be " + (earningsChart.width * 2));
+        testCaptureImageHeight.doAssert(snapshot.height == (earningsChart.height * 2), "snapshot.height should be " + (earningsChart.height * 2));
+        testCaptureImageDataNotNull.doAssert(snapshot.data != null, "snapshot.data should not be null");
+        testCaptureImageContentType.doAssert(snapshot.contentType == "image/png", "snapshot.contentType should be \'image/png\'");
+        out.text += "Expected data.length: " + snapshot.data.length + "\n";
+    }
+    
+    public function roHandler(event:Object):void {
+        if (event is ResultEvent) {
+            testCaptureImageRemoteObject.doAssertEquals( event.result, snapshot.data.length);
+            out.text += "ResultEvent: " + ObjectUtil.toString( event.result );
+        }
+        else {
+            out.text += "fault: " + ObjectUtil.toString( event.fault );
+            testCaptureImageRemoteObject.doFail( event.fault.faultString );
+        }
+    }
+
+    ]]>
+    </mx:Script>
+
+    <mx:Panel id="panel" title="Company Inc." height="100%" width="100%" 
+        paddingTop="10" paddingLeft="10" paddingRight="10">
+        <mx:Label id="earningsLabel" text="Annual Earnings" />
+        <mx:ColumnChart id="earningsChart" height="200" width="400"
+            paddingLeft="5" paddingRight="5" 
+            showDataTips="true" dataProvider="{earnings}">
+            <mx:horizontalAxis>
+                <mx:CategoryAxis categoryField="Year"/>
+            </mx:horizontalAxis>
+            <mx:series>
+                <mx:ColumnSeries xField="Year" yField="Earnings" displayName="Earnings"/>
+            </mx:series>
+        </mx:ColumnChart>
+    </mx:Panel>
+   <mx:TextArea id="out" width="90%" height="150"/>
+
+</mx:Application>

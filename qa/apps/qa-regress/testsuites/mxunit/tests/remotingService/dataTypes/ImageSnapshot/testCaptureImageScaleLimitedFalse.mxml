@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<mx:Application  xmlns:mx="http://www.adobe.com/2006/mxml"
+        xmlns:qa="http://www.adobe.com/2006/flexqa"
+        creationComplete="run()">
+
+    <mx:Label fontSize="16" text="mxunit test: testCaptureImage" />
+    <qa:MXUnit id="testCaptureImageNotNull" timeout="3000"/>
+    <qa:MXUnit id="testCaptureImageWidth" timeout="3000"/>
+    <qa:MXUnit id="testCaptureImageHeight" timeout="3000"/>
+    <qa:MXUnit id="testCaptureImageDataNotNull" timeout="3000"/>
+    <qa:MXUnit id="testCaptureImageContentType" timeout="3000"/>
+
+    <mx:Script>
+    <![CDATA[
+    
+    import flash.display.Bitmap;
+    import mx.collections.ArrayCollection;
+    import mx.core.IFlexDisplayObject;
+    import mx.graphics.ImageSnapshot;
+    import mx.graphics.codec.PNGEncoder;
+    
+    [Bindable]
+    public var earnings:ArrayCollection = new ArrayCollection([
+    {Year:2003, Earnings:1.59},
+    {Year:2004, Earnings:1.85},
+    {Year:2005, Earnings:2.01},
+    {Year:2006, Earnings:2.59}]);
+
+    private function run():void
+    {
+        var dpi:Number = Capabilities.screenDPI * 5;
+        trace("screenDPI=" + Capabilities.screenDPI);
+        var snapshot:ImageSnapshot = ImageSnapshot.captureImage(earningsChart, dpi, new PNGEncoder(), false);
+        
+        testCaptureImageNotNull.doAssert(snapshot != null, "snapshot should not be null");
+        testCaptureImageWidth.doAssert(snapshot.width == (earningsChart.width * 5), "snapshot.width should be " + (earningsChart.width * 5) + " but it's " + snapshot.width);
+        testCaptureImageHeight.doAssert(snapshot.height == (earningsChart.height * 5), "snapshot.height should be " + (earningsChart.height * 5) + " but it's " + snapshot.height);
+        testCaptureImageDataNotNull.doAssert(snapshot.data != null, "snapshot.data should not be null");
+        testCaptureImageContentType.doAssert(snapshot.contentType == "image/png", "snapshot.contentType should be \'image/png\'");
+    }
+
+    ]]>
+    </mx:Script>
+
+    <mx:Panel id="panel" title="Company Inc." height="100%" width="100%" 
+        paddingTop="10" paddingLeft="10" paddingRight="10">
+        <mx:Label id="earningsLabel" text="Annual Earnings" />
+        <mx:ColumnChart id="earningsChart" height="800" width="800"
+            paddingLeft="5" paddingRight="5" 
+            showDataTips="true" dataProvider="{earnings}">
+            <mx:horizontalAxis>
+                <mx:CategoryAxis categoryField="Year"/>
+            </mx:horizontalAxis>
+            <mx:series>
+                <mx:ColumnSeries xField="Year" yField="Earnings" displayName="Earnings"/>
+            </mx:series>
+        </mx:ColumnChart>
+    </mx:Panel>
+
+</mx:Application>

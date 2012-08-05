@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="120" height="120" 
+	horizontalAlign="center" verticalGap="0" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+	
+	<mx:CurrencyFormatter id="cf"/>
+	
+	<mx:Label text="{data.name}" fontWeight="bold"/>
+	<mx:Image source="../images/{data.image}" width="40" height="80"/>
+	<mx:Label text="{cf.format(data.price)}" styleName="price"/>
+
+</mx:VBox>

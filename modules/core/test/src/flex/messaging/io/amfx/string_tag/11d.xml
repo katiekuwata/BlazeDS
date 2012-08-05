@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 11d
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/23/2005
+
+Tests that whitespace is preserved with parsing of
+string values in an AMFX stream.
+
+PLEASE DO NOT REFORMAT THIS XML FILE
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <object>
+            <traits>
+                <string>prop0</string>
+                <string>prop1</string>
+                <string>prop2</string>
+                <string>prop3</string>
+                <string>prop4</string>
+                <string>prop5</string>
+                <string>prop6</string>
+                <string>prop7</string>
+                <string>prop8</string>
+                <string>prop9</string>
+            </traits>
+            <!-- Leading spaces -->
+            <string>  Alpha</string>
+
+            <!-- Trailing spaces -->
+            <string>Beta  </string>
+
+            <!-- Both sides with spaces -->
+            <string>  Gamma  </string>
+
+            <!-- Leading new line -->
+            <string>
+Delta</string>
+            <!-- Trailing new line -->
+            <string>Epsilon
+</string>
+
+            <!-- Both sides with new lines -->
+<string>
+Zeta
+</string>
+            <!-- Leading tab -->
+            <string>	Eta</string>
+
+            <!-- Trailing tab -->
+            <string>Theta	</string>
+
+            <!-- Both sides with tab -->
+            <string>	Iota	</string>
+
+            <!-- Mixed -->
+            <string>
+	      Kappa
+
+            </string>
+
+        </object>
+    </body>
+</amfx>

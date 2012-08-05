@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>rpc</name>
+	<comment></comment>
+	<projects>
+		<project>framework</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.adobe.flexbuilder.project.flexbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.adobe.flexbuilder.project.flexlibnature</nature>
+		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>manifest.xml</name>
+			<type>1</type>
+			<locationURI>FLEX_SDK/frameworks/projects/rpc/manifest.xml</locationURI>
+		</link>
+		<link>
+			<name>[source path] src</name>
+			<type>2</type>
+			<locationURI>FLEX_SDK/frameworks/projects/rpc/src</locationURI>
+		</link>
+		<link>
+			<name>build.xml</name>
+			<type>1</type>
+			<locationURI>FLEX_SDK/frameworks/projects/rpc/build.xml</locationURI>
+		</link>
+		<link>
+			<name>build.properties</name>
+			<type>1</type>
+			<locationURI>FLEX_SDK/frameworks/projects/rpc/build.properties</locationURI>
+		</link>
+		<link>
+			<name>[source path] en_US</name>
+			<type>2</type>
+			<locationURI>FLEX_SDK/frameworks/projects/rpc/bundles/en_US</locationURI>
+		</link>
+		<link>
+			<name>[source path] ja_JP</name>
+			<type>2</type>
+			<locationURI>FLEX_SDK/frameworks/projects/rpc/bundles/ja_JP</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>

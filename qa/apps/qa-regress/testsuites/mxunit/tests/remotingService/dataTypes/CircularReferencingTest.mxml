@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+    xmlns:qa="http://www.adobe.com/2006/flexqa" creationComplete="run();">
+ <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+
+    <mx:Script>
+    <![CDATA[
+
+        import qa.mxunit.*;
+        import mx.core.mx_internal;
+        import mx.messaging.ChannelSet;
+        import mx.messaging.channels.*;
+        import mx.messaging.config.ServerConfig;
+        
+        ////////////////////////////////////////////////////////////////////////////
+        //
+        // Variables
+        //
+        ////////////////////////////////////////////////////////////////////////////        
+        //amf channel which legacy-collection is true
+        private var amfChannel:ChannelSet;
+        //http channel which legacy-collection is true
+        private var httpChannel:ChannelSet;
+   
+
+        private var obj0:Object;
+        private var obj1:Object;
+        private var obj2:Object;
+        private var objs:Array;
+        
+        ////////////////////////////////////////////////////////////////////////////
+        //
+        // Setup method.
+        //
+        //////////////////////////////////////////////////////////////////////////// 
+        
+        /**
+        *  This setup method dynamically creates a series of tests, and 
+        *  creates different channelsets. Same data is going to test under different
+        *  channelSets
+        *  Create an object graph for testing
+        */
+        private function run():void
+        {
+            amfChannel = new ChannelSet();
+            amfChannel.addChannel(ServerConfig.getChannel("qa-amf"));
+            httpChannel = new ChannelSet();
+            httpChannel.addChannel(ServerConfig.getChannel("qa-http"));
+           
+            obj0 = new Object();
+            obj1 = new Object();
+            obj2 = new Object();
+
+            obj0.obj1 = obj1;
+            obj0.obj2 = obj2;
+
+            obj1.obj0 = obj0;
+            obj1.obj2 = obj2;
+
+            obj2.obj0 = obj0;
+            obj2.obj1 = obj1
+
+            objs = [obj0,obj1,obj2,obj1];
+            MXUnitManager.detectTests(this,20000);
+        }
+        /**
+        *    Test serialization can retain the object graph through amf channel
+        **/
+        public function testAMF():void
+        {
+            ro.channelSet = amfChannel;
+            var call:Object = ro.echoObjects(objs);
+        }
+        
+        /**
+        *    Test serialization can retain the object graph through http channel
+        **/
+        public function testHTTP():void
+        {
+            ro.channelSet = httpChannel;
+            var call:Object = ro.echoObjects(objs);
+        }
+
+ 
+
+        private function isEqual(result:Array):Boolean {
+            var obj0:Object = result[0];
+            var obj1:Object = result[1];
+            var obj2:Object = result[2];
+            var obj3:Object = result[3];
+
+            if (obj0.obj1 == obj1 &&
+                obj0.obj2 == obj2 &&
+                obj1.obj0 == obj0 &&
+                obj1.obj2 == obj2 &&
+                obj2.obj0 == obj0 &&
+                obj2.obj1 == obj1 &&
+                obj1 == obj3)
+                return true;
+            else
+                return false;
+        }
+
+        private function testHandler(e:Object, fromFault:Boolean):void
+        {
+            if (e.token.expectFault)
+            {
+                Assert.currentTest.doPass(e.fault.faultString);
+            }
+            else if (fromFault)
+            {
+                Assert.currentTest.doFail(e.fault.faultString);
+            }
+            else
+            {
+                Assert.currentTest.doAssertEquals(isEqual(e.result),true);
+            }
+        }
+    ]]>
+    </mx:Script>
+    <mx:RemoteObject destination="qa.echoservice.Echo" id="ro">
+        <mx:method name="echoObjects" result="testHandler(event,false)"
+            fault="testHandler(event,true)"/>
+    </mx:RemoteObject>
+
+</mx:Application>

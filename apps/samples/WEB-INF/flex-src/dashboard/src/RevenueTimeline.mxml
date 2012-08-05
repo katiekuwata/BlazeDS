@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ViewStack xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" width="100%" height="100%">
+
+    <mx:Script>
+
+        <![CDATA[
+        import mx.charts.HitData;
+        
+        [Bindable]
+        public var revenueData:Array;
+
+        [Bindable]
+        public var selectedMonth:Object;
+
+		private var colors:Array = [0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF];
+
+        protected function monthChange(month:Object):void
+        {
+            selectedMonth = month;
+            dispatchEvent(new Event("monthChange"));
+        }
+
+        protected function currencyFormat(value:Object, arg2:Object, arg3:Object):String
+        {
+            return cf.format(value);
+        }
+
+        private function dataGridCurrencyFormat(item:Object, column:Object):String
+        {
+            return cf.format(item[column.dataField]);
+        }
+
+        private function sortByDates(obj1:Object, obj2:Object):Number
+		{
+			var n:Number = SortUtils.sortByDates(obj1, obj2, "name");
+			return n;
+		}
+
+        private function formatDataTip(hitData:HitData):String
+        {
+            var name:String = hitData.item.name;
+            var revenue:Number = hitData.item.revenue;
+            return "<b>Month: "+name+"</b><br>Revenue: "+cf.format(revenue);
+        }
+        
+        ]]>
+
+    </mx:Script>
+
+    <mx:Metadata>
+        [Event("monthChange")]
+    </mx:Metadata>
+
+    <mx:SeriesInterpolate id="interpolate" elementOffset="10"/>
+
+    <mx:CurrencyFormatter id="cf"/>
+
+    <mx:VBox id="chartVBox" width="100%" height="100%" icon="@Embed('icon_chart.png')" toolTip="Chart View" 
+    	paddingLeft="4" paddingTop="4" paddingBottom="4" paddingRight="4">
+		<mx:LineChart id="lc" dataProvider="{revenueData}" showDataTips="true" width="100%" height="100%" dataTipFunction="formatDataTip"
+			itemClick="monthChange(event.hitData.item)">
+
+			<mx:horizontalAxis>
+				<mx:CategoryAxis dataProvider="{revenueData}" categoryField="name"/>
+			</mx:horizontalAxis>
+
+			<mx:verticalAxis>
+				<mx:LinearAxis labelFunction="currencyFormat"/>
+			</mx:verticalAxis>
+
+			<mx:series>
+				<mx:LineSeries yField="revenue"  showDataEffect="{interpolate}">
+					<mx:lineStroke>
+						<mx:Stroke color="#708EA4" weight="1"/>
+					</mx:lineStroke>
+				</mx:LineSeries>
+				<mx:LineSeries yField="license"  showDataEffect="{interpolate}">
+					<mx:lineStroke>
+						<mx:Stroke weight="1"/>
+					</mx:lineStroke>
+				</mx:LineSeries>
+			</mx:series>
+
+			<mx:backgroundElements>
+				<mx:Array>
+<!-- SDK4			
+                    <mx:GridLines gridDirection="both"> -->
+<!-- SDK3 -->
+			        <mx:GridLines direction="both"> 
+						<mx:verticalStroke>
+							<mx:Stroke weight="1" color="#CCCCCC"/>
+						</mx:verticalStroke>
+					</mx:GridLines>
+				</mx:Array>
+			</mx:backgroundElements>
+
+		</mx:LineChart>
+	</mx:VBox>
+
+    <mx:VBox width="100%" height="100%" icon="@Embed('icon_grid.png')" toolTip="Grid View">
+        <mx:DataGrid dataProvider="{revenueData}" width="100%" height="100%"
+        	change="monthChange(DataGrid(event.target).selectedItem)">
+            <mx:columns>
+                <mx:DataGridColumn dataField="name" headerText="Month"
+                    sortCompareFunction="sortByDates" />
+                <mx:DataGridColumn dataField="revenue" headerText="Total Revenue"
+                    labelFunction="dataGridCurrencyFormat" />
+                <mx:DataGridColumn dataField="average" headerText="Region Average"
+                    labelFunction="dataGridCurrencyFormat" />
+            </mx:columns>
+        </mx:DataGrid>
+    </mx:VBox>
+
+</mx:ViewStack>

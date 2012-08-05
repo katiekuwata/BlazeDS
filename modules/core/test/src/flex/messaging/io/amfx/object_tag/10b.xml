@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 10b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests that an anonymous object with many similar
+anonymous objects as children (but not similar enough to
+be sent by-reference, though their traits might be)
+can be parsed from an AMFX stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <object>
+            <traits>
+                <string>prop0</string>
+                <string>prop1</string>
+                <string>prop2</string>
+            </traits>
+            <object>
+                <traits>
+                    <string>subprop0</string>
+                    <string>subprop1</string>
+                </traits>
+                <string>200</string>
+                <double>200.0</double>
+            </object>
+            <object>
+                <traits id="1"/>
+                <string>200</string>
+                <double>200.0</double>
+            </object>
+            <object>
+                <traits id="1"/>
+                <object>
+                    <traits id="1"/>
+                    <string>200</string>
+                    <double>200.0</double>
+                </object>
+                <object>
+                    <traits id="1"/>
+                    <string>200</string>
+                    <double>200.0</double>
+                </object>
+            </object>
+        </object>
+    </body>
+</amfx>

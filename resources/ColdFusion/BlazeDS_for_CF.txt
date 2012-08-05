@@ -1,0 +1,61 @@
+This file explains how to integrate BlazeDS with a ColdFusion 8 installation.
+
+For ColdFusion 8 with integrated LCDS installation
+
+0. Shutdown Coldfusion
+
+1. Move aside the ColdFusion8/wwwroot/WEB-INF/flex directory
+
+2. Edit ColdFusion8/WEB-INF/web.xml:
+ - Comment out/remove the definitions of FlexMxmlServlet and FlexInternalServlet servlets.
+ - Comment out/remove the servlet mapping for FlexMxmlServlet and FlexInternalServlet.
+ - Comment out/remove the taglig definition for the FlexTagLib
+
+3. Follow the instructions for ColdFusion without Integrated LCDS below
+
+
+ColdFusion 8 without Integrated LCDS installation
+
+0. Shutdown ColdFusion.
+
+1. Unzip blazeds.war in to a temporary directory (In this example c:\temp\BlazeDS).
+
+2. Move aside the following jar files from ColdFusion8/lib:
+    flex-messaging.jar
+    flex-messaging-common.jar
+    flex-messaging-opt.jar
+    flex-messaging-req.jar
+
+3. Copy the following jar files from c:\temp\BlazeDS\WEB-INF\lib to ColdFusion8/lib
+    flex-messaging-common.jar
+    flex-messaging-core.jar
+    flex-messaging-opt.jar
+    flex-messaging-proxy.jar
+    flex-messaging-remoting.jar
+
+4. Create a new directory (create the WEB-INF/flex directory if needed):
+     ColdFusion8/wwwroot/WEB-INF/flex/jars
+
+5. Copy the following jar files from c:\temp\BlazeDS\WEB-INF\lib to ColdFusion8/wwwroot/WEB-INF/flex/jars
+   concurent.jar
+   cfgatewayadapter
+
+6. Set up the configuration files for BazeDS.  You can copy the set of configuration files from the BlazeDS zip file (not the war file).  Copy the following files in resources/ColdFusion to ColdFusion8/wwwroot/WEB-INF/flex:
+  services-config.xml
+  messaging-config.xml
+  proxy-config.xml
+  remoting-config.xml
+
+(OPTIONAL)
+You can continue to use the configuration files from your integrated LCDS installation by doing the following:
+  - Copy services-config.xml, messaging-config.xml, proxy-config.xml, and remoting-config.xml from the WEB-INF/flex directory you moved aside earlier back to ColdFusion8/wwwroot/WEB-INF/flex
+  - Remove from the services-config.xml file the line:
+        <service-include file-path="data-management-config.xml" />
+  - Remove the <channel-definition> for the ColdFusion specific RTMP channel (if not commented out) and remove the java-http and java-secure-http channels.
+  - Uncomment the java-amf, java-secure-amf and java-polling-amf channels.  Do not include the java-rtmp channel.
+  - Edit the proxy-config.xml file and change the lines:
+        <channel ref="java-http"/>
+        <!-- <channel ref="java-amf"/> -->
+    To read
+         <channel ref="java-amf"/>
+

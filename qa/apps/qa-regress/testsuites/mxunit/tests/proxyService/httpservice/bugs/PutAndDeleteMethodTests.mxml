@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+	<mx:HTTPService id="hs1" useProxy="true" 
+		method="PUT"
+		resultFormat="text"/>
+	<mx:HTTPService id="hs2" useProxy="true" 
+		method="DELETE"
+		resultFormat="text"/>
+    <mx:Script>
+    	<![CDATA[
+    		import qa.mxunit.Assert;
+    		import mx.rpc.events.FaultEvent;
+    		import qa.mxunit.MXUnitManager;
+    		import mx.messaging.config.ServerConfig;
+    		import mx.utils.URLUtil;
+    		
+    		private var manager:MXUnitManager;
+    		private function initApp():void
+    		{
+    			var serverName:String = URLUtil.getServerName(Application.application.url);
+    			var serverPort:uint = URLUtil.getPort(Application.application.url);
+    			var domainUrl:String = "http://" + serverName + (serverPort == 80 ? "" : (":" + serverPort));
+
+    			hs1.url = domainUrl + "/qa-regress/remote/testMethods.jsp";
+    			hs2.url = domainUrl + "/qa-regress/remote/testMethods.jsp";
+				manager = MXUnitManager.getInstance();
+				manager.detectTests(this, 10000);
+    		}
+    		
+    		public function testPut():void
+    		{
+    			manager.currentTest.tokenChain(
+	    			hs1.send(),
+	    			function(event:Object, token:Object):void
+	    			{
+	    				if (event is FaultEvent)
+	    				{
+	    					Assert.fail(event.fault.faultString);
+	    				}
+	    				else
+	    				{
+	    					Assert.assertEquals("<method><type>PUT</type></method>",event.result);
+	    				}
+	    			}
+    			)
+    		}
+    		public function testDelete():void
+    		{
+    			manager.currentTest.tokenChain(
+	    			hs2.send("abc"),
+	    			function(event:Object, token:Object):void
+	    			{
+	    				if (event is FaultEvent)
+	    				{
+	    					Assert.fail(event.fault.faultString);
+	    				}
+	    				else
+	    				{
+	    					Assert.assertEquals("<method><type>DELETE</type></method>",hs2.lastResult);
+	    				}
+	    			}
+    			)
+    		}		
+    	]]>
+    </mx:Script>
+</mx:Application>

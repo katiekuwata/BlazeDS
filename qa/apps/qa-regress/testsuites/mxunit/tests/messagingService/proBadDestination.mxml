@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="run()">
+    
+    <mx:Producer id="pro" destination="BadTopic" acknowledge="msAcknowledge(event)"/>
+
+
+    <mx:Script>
+    <![CDATA[
+        import qa.mxunit.Assert;
+        import qa.mxunit.MXUnitManager;
+        import mx.messaging.messages.*;
+        import mx.messaging.config.*;
+        import mx.messaging.events.*;
+        ////////////////////////////////////////////////////////////////////////////
+        //
+        // Setup method.
+        //
+        ////////////////////////////////////////////////////////////////////////////                 
+        public function run():void {            
+            MXUnitManager.getInstance().addTests(this,["badDestTest"], 5000);
+        }
+        
+        ////////////////////////////////////////////////////////////////////////////
+        //
+        // Test methods
+        //
+        //////////////////////////////////////////////////////////////////////////// 
+        /**
+        * The test sends a message to a destination that doesn't exist and then verifies
+        * that a MessageFault gets returned. 
+        */ 
+        public function badDestTest():void {
+            MXUnitManager.getInstance().currentTest.chain(pro,[MessageFaultEvent.FAULT],producerEventHandler);            
+            var msg:IMessage = new AsyncMessage();
+            msg.body = "hello";
+            pro.send(msg);                        
+        }
+        
+        /**
+        *  Listen for events from the producer.    
+        */
+        public function producerEventHandler(event:Event):void 
+        {           
+           if (event is MessageFaultEvent) {
+                var me:MessageFaultEvent = event as MessageFaultEvent;
+                Assert.assertEquals("Fault had wrong message. Got " + me.faultString,"No destination with id 'BadTopic' is registered with any service.",me.faultString);                   
+            }
+        }
+        /**
+        *  Listen for acknowledge events for the producer.    
+        */
+        public function msAcknowledge(e:MessageAckEvent):void
+        {}
+        
+        
+
+    ]]>
+    </mx:Script>       
+</mx:Application>

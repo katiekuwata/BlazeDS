@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" ?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa" creationComplete="run()">
+	
+	<!-- method = get -->
+	<mx:HTTPService id="hsGet" useProxy="true" destination="echoParamsExtraOnUrl_amf" resultFormat = "flashvars" method = "get"  result="onServiceResultGet(event)" >
+           <mx:request>
+                <mx:value>value</mx:value>
+        </mx:request>
+    </mx:HTTPService>
+	
+	<!-- method = post -->
+	<mx:HTTPService id="hsPost" useProxy="true" destination="echoParamsExtraOnUrl_amf"  resultFormat = "flashvars" 	method = "post" result="onServiceResultPost(event)" >
+        <mx:request>
+                <mx:value>value</mx:value>
+        </mx:request>
+    </mx:HTTPService>
+   
+	<mx:Script>
+	<![CDATA[
+        /****************************************************
+        *  HttpService GET/POST method test
+        * **************************************************/
+
+	import qa.mxunit.*;
+	import mx.rpc.events.*;
+
+        public var fault:Object;
+        public var resultGet:Object;
+		public var resultPost:Object;
+        public var events:Array;
+
+        public function onServiceResultGet(event:ResultEvent):void {
+			 resultGet = event.result;
+		}
+
+		public function onServiceResultPost(event:ResultEvent):void {
+			 resultPost = event.result;
+		}
+
+        public function onServiceFault(event:FaultEvent):void {
+			trace("event.fault.faultString: " + event.fault.faultString);
+            events.push("service fault");
+        }
+
+		 public function run():void {
+            events = new Array();
+			hsGet.send();
+            hsPost.send();
+
+            MXUnitManager.delay = 6000;
+			MXUnitManager.addTests(this,["Test_get","Test_post"],10000);
+		}
+
+        public function Test_get():void {
+            Assert.isTrue(resultGet.value == "value", "result.value should be 'value'");
+			Assert.isTrue(resultGet.extra == "extra", "result.extra should be 'extra'");
+		}
+
+     	public function Test_post():void {
+            Assert.isTrue(resultPost.value == "value", "result.value should be 'value'");
+			Assert.isTrue(resultPost.extra == "extra", "result.extra should be 'extra'");
+		}
+	]]>
+	</mx:Script>
+</mx:Application>

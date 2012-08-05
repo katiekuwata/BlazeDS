@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 13b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests that a simple ActionScript Object with boolean true
+properties can be parsed from an AMFX stream.
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <object>
+            <traits>
+                <string>prop0</string>
+                <string>prop1</string>
+            </traits>
+            <true/>
+            <true/>
+        </object>
+    </body>
+</amfx>

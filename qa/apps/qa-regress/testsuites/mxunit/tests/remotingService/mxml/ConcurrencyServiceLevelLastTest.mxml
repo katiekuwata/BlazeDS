@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<mx:Application  width='100%' height='100%' xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="run()">
+<!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+   <mx:RemoteObject destination="qa.echoservice.Echo" id="remote" concurrency="last">
+        <mx:method name="echoInt" result="event.token.resultHandler()"
+                        fault="event.token.faultHandler()"/>
+    </mx:RemoteObject>
+    <MXUnit xmlns="http://www.adobe.com/2006/flexqa" id="testLast" timeout="10000"/>
+    <mx:Script>
+    <![CDATA[
+        import mx.utils.*;
+        import flash.events.*;
+
+        private var noPreviousResult:Boolean = true;
+        private var delayPassTimer:Timer;
+        private function delayPass(e:Event):void
+        {
+            delayPassTimer.stop();
+            if (noPreviousResult)
+            testLast.doPass("Only got last result");
+        }
+        private function lastResultHandler():void
+        {
+            //last call's response could come before the first two calls
+            trace("lastResultHandler");
+	        delayPassTimer = new Timer(2000,0);
+	        delayPassTimer.addEventListener("timer",delayPass);
+            delayPassTimer.start();
+        }
+        private function resultHandler():void
+        {
+            testLast.doFail("This call object should be void by the lastCall");
+            noPreviousResult = false;
+        }
+        private function faultHandler():void
+        {
+            testLast.doFail("Should not throw error, it should make last call without any error message");
+            noPreviousResult = false;
+        }
+        /**
+        *  run RemoteObject test. issue three calls and the concurrency is last
+        *  first two call should be void by the last Call, should not have result nor fault
+        *  service is last
+        **/
+        public  function run():void
+        {
+            var firstCall:Object  = remote.echoInt(10);
+            firstCall.resultHandler = resultHandler;
+            firstCall.faultHandler =  faultHandler;
+            var secondCall:Object = remote.echoInt(10);
+            secondCall.resultHandler = resultHandler;
+            secondCall.faultHandler =  faultHandler;
+            var thirdCall:Object  = remote.echoInt(10);
+            thirdCall.resultHandler = lastResultHandler;
+            thirdCall.faultHandler = faultHandler;
+        }
+    ]]>
+    </mx:Script>
+</mx:Application>

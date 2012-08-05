@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa"
+creationComplete="run()">
+   
+    <mx:Consumer id="con" destination ="MyTopic"/>
+
+    <mx:Script>
+    <![CDATA[
+    	import mx.messaging.channels.AMFChannel;
+        import mx.messaging.channels.StreamingAMFChannel;      
+        import mx.messaging.ChannelSet;
+        import mx.messaging.Channel;
+        import qa.mxunit.Assert;
+        import qa.mxunit.MXUnitManager;
+        import mx.messaging.messages.*;
+        import mx.messaging.config.*;
+        import mx.messaging.events.*;        
+
+        private var receiveAck:Boolean = false;
+        private var noProFault:Boolean = true;
+        private var noConFault:Boolean = true;
+        private var proFaultString:String = "";
+        private var conFaultString:String = "";
+        private var result:String = "";  
+        ////////////////////////////////////////////////////////////////////////////
+        //
+        // Setup method.
+        //
+        //////////////////////////////////////////////////////////////////////////// 
+        /**
+        *  Initialize the MXUniManager. 
+        */ 
+        public function run():void {
+            MXUnitManager.getInstance().addTests(this,["simpleMessageTest"]);
+        }
+        ////////////////////////////////////////////////////////////////////////////
+        //
+        // Tests
+        //
+        ////////////////////////////////////////////////////////////////////////////    
+       /**
+        * This test tries to use an AMFChannel on the client to connect to a streaming endpoint. This should return a channel fault
+        * indicating that the endpoint does not support polling channels.
+        */ 
+        public function simpleMessageTest():void {
+            setupConsumer();
+        }
+        /**
+        * @private
+        */ 
+       public function setupConsumer():void       
+        {           
+            //var channel:Channel = ServerConfig.getChannel("qa-streaming-amf", false);
+ 			var channel:AMFChannel = new AMFChannel("qa-streaming-amf", "http://{server.name}:{server.port}/qa-regress/messagebroker/streaming-amf");
+ 			var cs:ChannelSet = new ChannelSet();
+			cs.addChannel(channel);
+			con.channelSet = cs;
+			
+			MXUnitManager.getInstance().currentTest.chain(con,[ChannelFaultEvent.FAULT],channelFault);			
+			                   
+            con.subscribe();
+        }
+        /**
+        * @private
+        */ 
+        public function channelFault(event:ChannelFaultEvent):void {
+            Assert.assertEquals("Wrong fault code.","Channel.Polling.Error",event.faultCode);
+            Assert.assertContains("Wrong fault detail.","Client attempted to contact a server endpoint that does not support a polling channel.",event.faultDetail);
+        }
+        
+
+    ]]>
+    </mx:Script>    
+    <mx:TraceTarget level="0"/>   
+</mx:Application>

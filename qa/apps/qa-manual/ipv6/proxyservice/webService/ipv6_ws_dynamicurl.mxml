@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="startTest()">
+		
+	<mx:HBox>				
+		<mx:Button label="Invoke WebService" click="invokeWebService()" />
+	</mx:HBox>		
+	<mx:TextArea id="ta" width="70%" height="50%" />
+	
+	<mx:Script>
+		<![CDATA[		
+		
+			/*************************************************************************************
+			*   This example tests the usage of IPv6 address in the WebService destination
+			*   of the proxy service.  Update the DefaultHTTP destination in the proxy-config.xml as below.
+			*   Replace remoteURL with the target server IP address.  Run the wsdl URL from a browser 
+			*   directly and make sure the target supports IPv6 first.
+			*
+			*	<destination id="DefaultHTTP">
+			*	    <properties>
+			*	    	<dynamic-url>http://[::1]:8400/qa-regress/axis/services/Version*</dynamic-url>
+			*	    </properties>
+			*	</destination>			
+			* 
+			*   It uses the default Version web service.  Request the app with an IPv6 address 
+			*   (global IPv6 address and [::1]) and change the targetUrl accordingly.
+			**************************************************************************************/
+
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.soap.WebService;
+			import mx.messaging.channels.HTTPChannel;
+			import mx.messaging.ChannelSet;
+			import qa.mxunit.*;
+						
+			private var ws:WebService;	
+			private var targetUrl:String = "[::1]";		
+			
+			private var remoteUrl:String = "[::1]";
+			private var resultType:String = "";
+						 
+			private function startTest():void 
+			{
+				ws = new WebService();
+				ws.useProxy = true;
+				
+				var cs:ChannelSet = new ChannelSet();
+				cs.addChannel(new HTTPChannel("data-http", "http://" + targetUrl + ":8400/qa-manual/messagebroker/http"));
+				ws.channelSet = cs;
+				
+				ws.addEventListener(FaultEvent.FAULT,handleFault);
+				ws.addEventListener(ResultEvent.RESULT, handleResult);				
+				ws.wsdl= "http://" + remoteUrl + ":8400/qa-regress/axis/services/Version?wsdl";
+				ws.loadWSDL();
+				invokeWebService();
+			}   
+			 
+			private function handleResult(event:ResultEvent):void
+			{
+				resultType = "result";				
+				log("Result:" + event.result);
+			}
+			
+			private function handleFault(event:FaultEvent):void
+			{
+				resultType = "fault";
+				log("FaultEvent: code="+ event.fault.faultCode + " detail=" + event.fault.faultDetail + " string=" + event.fault.faultString);
+			}
+			
+			private function invokeWebService():void
+			{					
+				ws.getVersion();
+				MXUnitManager.delay = 10000;
+				MXUnitManager.addTests(this,["testResult"], 5000);
+			}
+			
+			public function testResult():void
+			{
+				Assert.assertEquals("Expect a result event", "result", resultType);	
+			}
+			
+			private function log(s:String):void
+			{
+				ta.text += s + "\n";
+			}
+		]]>
+	</mx:Script>
+</mx:Application>

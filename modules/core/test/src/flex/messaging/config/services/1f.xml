@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1f
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/28/2005
+
+This test is identical to 1c, but it uses a service include instead
+of an inline service definition.
+ -->
+<services-config xmlns="http://www.adobe.com/2006/flex-enterprise-services">
+
+    <services>
+
+        <service-include file-path="1f_service_include.xml" />
+
+    </services>
+
+    <channels>
+        <channel-definition id="foo-channel" class="mx.messaging.chanels.FooChannel">
+            <endpoint url="/foo" class="flex.messaging.endpoints.FooEndpoint"/>
+        </channel-definition>
+    </channels>
+
+</services-config>

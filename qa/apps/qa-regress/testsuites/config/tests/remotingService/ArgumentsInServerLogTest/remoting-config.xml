@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service class="flex.messaging.services.RemotingService" id="remoting-service">
+    <adapters>
+        <adapter-definition
+          class="flex.messaging.services.remoting.adapters.JavaAdapter"
+          default="true" id="java-object"/>
+    </adapters>
+    <destination channels="qa-amf" id="qa.amf.remoting.Test">
+        <properties>
+          <source>blazeds.qa.remotingService.TestServices</source>
+          <scope>session</scope>
+        </properties>
+    </destination>
+</service>

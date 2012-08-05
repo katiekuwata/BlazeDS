@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" 
+	pageTitle="SForce">
+
+    <!-- UI Declarations -->
+	
+    <mx:Panel title="SalesForce Test">
+        <mx:TextArea id="output" width="385" height="220" />       
+        <mx:ControlBar horizontalAlign="center" width="385">
+	    	<mx:Button id="loginBtn" label="Login" click="doLogin()" />
+	    	<mx:Button id="timestampBtn" label="Get timestamp" enabled="false" click="getServerTimestamp()" />
+	    	<mx:Button id="queryBtn" label="Query" click="runQuery()"/>	    	
+	    	<mx:Button label="Clear" click="output.text =''" />
+        </mx:ControlBar>
+    </mx:Panel>
+        <mx:Form width="300" height="500">
+        <mx:FormHeading label="First Account"/>
+        <mx:FormItem label="Account name">
+            <mx:TextInput id="nameField" width="200"/>
+        </mx:FormItem>
+        <mx:FormItem label="Annual Revenue">
+            <mx:TextInput id="revenueField" width="200"/>
+        </mx:FormItem>
+        <mx:FormItem >
+            <mx:Button id="formSubmitBtn" label="Create" click="handleSubmit()"/>
+        </mx:FormItem>
+        <mx:FormItem >
+            <mx:Button id="clearBtn" label="Clear" click="doClear()"/>
+        </mx:FormItem>
+    </mx:Form>
+    
+    <!-- WebService Declaration -->
+    <!-- soap URL: https://na1-api.salesforce.com/services/Soap/u/7.0 -->
+    <mx:WebService id="sforce" 
+    	destination="SForce"
+    	wsdl="https://localhost:9400/qa-regress/sforce_partner.wsdl"
+    	makeObjectsBindable="true" 
+    	load="loadHandler(event)"
+        result="resultHandler(event)"
+        fault="faultHandler(event)"/>  
+    
+    <mx:Script>
+    	<![CDATA[
+    	    import mx.controls.Alert;
+    	    import mx.rpc.AsyncToken;
+    		import mx.rpc.soap.LoadEvent;
+    		import mx.rpc.soap.SOAPHeader;
+    		import mx.rpc.events.ResultEvent;
+    		import mx.rpc.events.FaultEvent;
+    		import mx.utils.ObjectUtil;
+    		
+    		private var loggingIn:Boolean = false;
+    		private var selectedAccount:Object;
+    		
+			private function loadHandler(event:LoadEvent):void
+			{
+				output.text += "Loaded WSDL:\n" + event.toString() + "\n";
+			}
+			
+			private function resultHandler(event:ResultEvent):void
+			{
+				output.text += "Result:\n" + ObjectUtil.toString(event.result) + "\n";
+				
+				if (loggingIn)
+				{
+					sforce.endpointURI = event.result.serverUrl;
+					var namespace:Namespace = new Namespace("urn", "partner.soap.sforce.com");
+					var qname:QName = new QName(namespace, "SessionHeader");
+					var header:SOAPHeader = new SOAPHeader(qname, {"sessionId":event.result.sessionId});
+					sforce.addHeader(header);
+					loggingIn = false;
+					loginBtn.enabled = false;
+					timestampBtn.enabled = true;			
+				}
+				
+				if (event.token.operation != null)
+				{
+				    switch (event.token.operation)
+				    {
+				        case "query":
+				            if (event.result.size > 0)
+				            {
+				                selectedAccount = event.result.records[0];
+				                nameField.text = selectedAccount.Name;
+				                revenueField.text = selectedAccount.AnnualRevenue;
+				                formSubmitBtn.label = "Update";
+				            }
+				            else
+				                mx.controls.Alert.show("No results found for query");
+				        break;
+				        case "update":
+				            mx.controls.Alert.show("Updated!");				          
+				        break;
+				        case "create":
+				            mx.controls.Alert.show("Created!");
+				        break;
+				        case "delete":
+				            mx.controls.Alert.show("Deleted!");
+				        break;				        
+				    }
+				}
+			}
+    		
+    		private function faultHandler(event:FaultEvent):void
+    		{
+    			output.text += "Fault:\n" + ObjectUtil.toString(event.fault) + "\n";
+    			
+    			if (loggingIn)
+    				loggingIn = false;
+    		}
+    		
+    		private function doLogin():void
+    		{
+    			if (!loggingIn)
+    			{
+	    			loggingIn = true;
+	    			sforce.login("julie.sahlas@gmail.com", "pes092200");    			    				
+    			}
+    		}
+    		
+    		private function getServerTimestamp():void
+    		{
+    			sforce.getServerTimestamp()
+    		}
+    		
+    		private function runQuery():void
+    		{
+    			var token:AsyncToken = sforce.query("SELECT ID, NAME, ANNUALREVENUE FROM ACCOUNT");
+    			token.operation = "query";
+    		}
+    		
+    		private function doCreate():void
+    		{
+    		    // TODO: pass the object to create. Not bothering until update works.
+    		    
+    			//token:AsyncToken = sforce.create([]);
+    			//token.op = "create"; 			
+    		}
+    		
+    		private function handleSubmit():void
+    		{
+    		    var token:AsyncToken;
+    		    if (formSubmitBtn.label == "Create")
+    		    {
+    		        var newAccount:Object = {};
+    		        newAccount.Name = nameField.text;
+    		        newAccount.AnnualRevenue = revenueField.text;
+    		        token = sforce.create([newAccount]);
+    		        token.operation = "create";
+    		        nameField.text = "";
+    		        revenueField.text = "";
+    		    }
+    		    else if (formSubmitBtn.label == "Update")
+    		    {
+    		        selectedAccount.Name = nameField.text;
+    		        selectedAccount.AnnualRevenue = revenueField.text;
+    		        token = sforce.update([selectedAccount]);
+    		        token.operation = "update";
+    		    }   
+    		}
+    		
+    		private function doClear():void
+    		{
+    		    nameField.text = "";
+    		    revenueField.text = "";
+    		    formSubmitBtn.label = "Create";
+    		}
+    		
+    		private function doDelete():void
+    		{
+    		    // To delete we'd have to hack around the delete keyword with getOperation().
+    		    
+    		    //var ids:Array = ["0013000000D9obTAAR"];
+    		    //var token:AsyncToken = sforce.delete(ids);
+    		    //token.operation = "delete";
+    		}
+    		
+    	]]>
+    </mx:Script>
+	
+</mx:Application>

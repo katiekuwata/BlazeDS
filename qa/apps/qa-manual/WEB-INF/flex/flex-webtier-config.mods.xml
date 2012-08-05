@@ -1,0 +1,18 @@
+<flex-webtier-config-mods>
+    <!--
+     The contents of this file will be used to modify an existing flex-server-config.xml file so
+     there is no need to maintain an entire config file.
+
+     Each child directly under the root has two extra attributes - parent and action.
+
+        parent - REQUIRED.  slash delimited path as to the parent node for the change
+        action - replace, add, delete.  Default is replace.
+
+    Local overrides are encouraged to be in flex-server-config.mods.local.xml
+    -->    
+
+    <show-override-warnings parent="flex-webtier-config/debugging" >true</show-override-warnings>
+
+    <content-size parent="flex-webtier-config/cache">10</content-size>
+    
+</flex-webtier-config-mods>

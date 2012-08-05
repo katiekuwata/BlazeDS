@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa" width="100%" height="100%" initialize="runTest()">
+ <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+
+    <qa:MXUnit id="testInheritedProp" timeout="20000"/>
+    <qa:MXUnit id="testInheritedPropGetter" timeout="20000"/>
+    <qa:MXUnit id="testOverridedPropByProp" timeout="20000"  bugID="95300"/>
+    <qa:MXUnit id="testOverridedPropByGetter" timeout="20000" />
+    <qa:MXUnit id="testOverridedGetterByGetter" timeout="20000"/>
+    <qa:MXUnit id="testChildClassStaticProp" timeout="20000" bugID="99670"/>
+    <qa:MXUnit id="testParentClassStaticProp" timeout="20000" bugID="99670"/>
+
+    <mx:RemoteObject destination="qa.http.remoting.InheritTest" id="httpRemote"
+            fault="reportError(event.fault.faultString)"
+            result="verifyResults(event.result)">
+        <mx:method name="getChildClass" />
+    </mx:RemoteObject>
+
+    <mx:Script>
+    <![CDATA[
+        /**
+        *  This test call remoteobjec to get a java class and verify the properties of its own and its parent
+        *  using http channel
+        **/
+        private function runTest():void {
+            httpRemote.getChildClass.send();
+        }
+
+        private function reportError(message:String):void
+        {
+            testInheritedProp.doFail(message);
+            testInheritedPropGetter.doFail(message);
+            testOverridedPropByProp.doFail(message);
+            testOverridedPropByGetter.doFail(message);
+            testOverridedGetterByGetter.doFail(message);
+        }
+
+        private function verifyResults(result:Object):void
+        {
+            testInheritedProp.doAssertEquals(result.inheritedProp, "parentClassInheritedProp");
+            testInheritedPropGetter.doAssertEquals(result.inheritedPropGetter,"parentClassInheritedPropGetter");
+            testOverridedPropByProp.doAssertEquals(result.overridedPropByProp,"childClassOverridedPropByProp");
+            testOverridedPropByGetter.doAssertEquals(result.overridedPropByGetter,"childClassOverridedPropByGetter");
+            testOverridedGetterByGetter.doAssertEquals(result.overridedGetterByGetter,"childClassOverridedGetterByGetter");
+
+            testChildClassStaticProp.doAssertEquals(result.childClassClassProp,undefined);
+            testParentClassStaticProp.doAssertEquals(result.parentClassClassProp,undefined);
+
+        }
+
+
+    ]]>
+    </mx:Script>
+
+</mx:Application>

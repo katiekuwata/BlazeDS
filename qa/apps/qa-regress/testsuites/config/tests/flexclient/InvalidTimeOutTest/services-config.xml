@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<services-config>
+
+	<flex-client>
+	    <timeout-minutes>foo</timeout-minutes>
+	</flex-client>
+</services-config>

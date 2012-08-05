@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright [2007] Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ -->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+                xmlns:qa="http://www.adobe.com/2006/flexqa"
+                creationComplete="run()">
+
+    <!--
+        This application uses a static destination in order to compare results against the runtime-configured 
+        clustered dybamicMessageDestination test.
+        The MyTopicClustered destination is defined in the WEB-INF\flex\messaging-config.mods.xml.
+        To test this application you need to:
+        1. Setup a cluster: make sure the nodes on the cluster discover each other.
+        2. Uncomment the  <cluster ref="default-tcp-cluster"/> setting in MyTopicClustered destination.
+        3. Build the qa-manual app on both nodes
+        4. Run this test
+    -->    
+    <mx:Producer id="pro">
+        <mx:destination>MyTopicClustered</mx:destination> 
+        <mx:fault>proFault(event)</mx:fault>
+    </mx:Producer>
+    
+    <mx:Consumer id="con" destination="MyTopicClustered"
+                fault="conFault(event)" 
+                message="msgReceived(event)" />
+
+    
+    <mx:Button label="Send msg" click="sendMsg()" />
+    <mx:Button label="Clear" click="resetOutput()" />
+    <mx:TextArea id="output" width="300" height="100" />
+    <mx:Script>
+    <![CDATA[
+
+        import mx.messaging.*;
+        import mx.messaging.events.*;
+        import mx.messaging.messages.*;
+        import mx.messaging.channels.*;
+
+        import mx.logging.*;
+        import mx.logging.targets.*;
+        
+        private var proFaultString:String = "";
+        private var conFaultString:String = "";
+        private var cs:ChannelSet;
+
+        private function run():void
+        {
+            // Uncomment for client side logging
+            /*
+            var target:TraceTarget = new TraceTarget();
+            target.includeLevel = true;
+            target.filters = ["mx.messaging.*", "mx.rpc.*"];
+            Log.addTarget(target);   
+            */
+            con.subscribe();
+        }
+
+        private function msgReceived(event:MessageEvent):void
+        {
+            output.text += event.message.body + "\n";
+        }
+
+        private function proFault(event:Object):void 
+        {
+            proFaultString = event.faultString;
+        }
+
+        private function conFault(event:Object):void 
+        {
+            conFaultString = event.faultString;
+        }
+        
+        public function sendMsg():void
+        {
+            var msg:AsyncMessage = new AsyncMessage();
+            msg.body = "Hola from qa-manual (in clustered flex server)";
+            pro.send(msg);
+        }
+        
+        public function resetOutput():void
+        {
+            output.text = "";
+        }
+
+    ]]>
+    </mx:Script>  
+	     
+</mx:Application>

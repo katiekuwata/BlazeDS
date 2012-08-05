@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 11j
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests that a encoded character entities can be parsed from
+an AMFX formatted stream and decoded correctly by
+the parser to the original characters.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <string>This string contains encoded characters: &lt; &gt; &amp; &#39; &quot;</string>
+    </body>
+</amfx>

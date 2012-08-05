@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:console="console.containers.*" xmlns="*" width="100%" height="100%">
+
+    <mx:HDividedBox width="100%" height="100%">
+    
+        <mx:VBox height="100%" width="300">
+            <mx:Label text="MBeans"/>
+            <mx:Tree id="mbeanTree" height="100%" width="100%" />
+        </mx:VBox>
+        
+        <mx:VBox id="mbeanDetails" height="100%" width="100%">
+        
+            <mx:HBox width="100%">
+                <mx:Label text="Name: "/>
+                <mx:Text id="mbeanNameText" width="100%" selectable="true"/>
+            </mx:HBox>
+            
+            <mx:TabNavigator id="main" creationPolicy="all" width="100%" height="100%" tabWidth="150">
+            
+                <mx:VBox label="Attributes" width="100%" height="100%">
+                    <mx:HBox width="100%">
+                        <mx:Label text="Selected Value: "/>
+                        <mx:Text id="selectedValueText" text="" width="100%" selectable="true" />
+                    </mx:HBox>
+                    <mx:DataGrid id="attributeGrid" width="100%" height="100%" />
+                    <mx:Button label="Refresh" id="refreshButton" />
+                  </mx:VBox>
+                  
+                <mx:VBox label="Operations" id="operationTab" width="100%" height="100%">
+                    <console:OperationSet id="operationsUI" />
+                </mx:VBox>
+                
+                <mx:VBox label="Info" width="100%" height="100%" >
+                    <mx:HBox width="100%">
+                        <mx:Label text="MBean Class:"/>
+                        <mx:Text id="mbeanClassText" width="100%" selectable="true"/>
+                    </mx:HBox>
+                    <mx:HBox width="100%">
+                        <mx:Label text="Description:" />
+                        <mx:Text id="mbeanDescriptionText" width="100%" selectable="true"/>
+                    </mx:HBox>
+                    <mx:TextArea id="mbeanInfoOutput" height="100%" width="100%"/>
+                </mx:VBox>
+                
+            </mx:TabNavigator>
+            
+        </mx:VBox>
+    
+    </mx:HDividedBox>
+    
+</mx:Box>

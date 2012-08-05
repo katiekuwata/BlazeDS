@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="initApp()">
+ <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+
+   <mx:RemoteObject id="ro" destination="dev.echoservice.Echo" 
+       result="event.token.handler(event)" fault="event.token.handler(event)" />
+   <mx:Script>
+       <![CDATA[
+           import qa.mxunit.Assert;
+           import qa.mxunit.MXUnitManager;
+           import mx.rpc.AsyncToken;
+           import mx.rpc.events.FaultEvent;
+           import mx.rpc.events.ResultEvent;
+            
+            ////////////////////////////////////////////////////////////////////////////
+            //
+            // Variables
+            //
+            ////////////////////////////////////////////////////////////////////////////  
+            private var mxunitManager: MXUnitManager;
+            
+            private function initApp():void
+            {
+                mxunitManager = MXUnitManager.getInstance();
+                mxunitManager.detectTests(this, 3000);
+            }
+               
+            /**
+             *  Test of custom serialization.
+             *  MyFileRef has remote alias blazeds.qa.remotingService.FileReference
+             *  FileReference registers a BeanProxy(FileReferenceProxy) as a facade. After instantiation of
+             *  it, it will be passed to the BeanProxy by calling the instanceComplete(Object fileRef)
+             *  method. This method uses the fileReference instance to create a file. It makes the server 
+             *  side deserialize fileReference as a java.io.File. Vice versa, the File class registers another BeanProxy
+             *  (FileProxy). When the serializer receive a File, it passes the file to the FileProxy by calling the 
+             *  getInstanceToSerialize(Object file). It return a fileReference instance to the serializer to serialize.
+             *  This test calls a java method echoFile(java.io.File file), and it passes MyFileRef instance and get back a 
+             *  MyFileRef instance.  
+             **/
+            public function testSerialization():void
+            {
+                var file:MyFileRef = new MyFileRef();
+                file.fileName = "c:\some\path\Foo.as";
+                var call: AsyncToken = ro.echoFile(file);
+                call.handler = mxunitManager.currentTest.addAsync(testHandler);
+            }
+            
+            /**
+            *  handler for testSerialization
+            **/
+            private function testHandler(event: Object):void
+            {
+                if (event is FaultEvent)
+                {
+                    Assert.fail(event.fault.faultString)
+                }
+                else
+                {
+                    Assert.assertEquals("c:\some\path\Foo.as", event.result.fileName);
+                }
+            }
+            
+           
+          
+       ]]>
+   </mx:Script>
+</mx:Application>

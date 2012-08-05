@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="600" height="600" creationComplete="initApp()">
+    <mx:Script>
+        <![CDATA[
+        import mx.utils.ObjectUtil;
+        
+        public function initApp():void
+        {
+        	println(ObjectUtil.toString(Application.application.parameters));
+        }
+        public function println(message:String):void
+        {
+        	out.text += message + "\n";
+        }
+     
+        ]]>
+    </mx:Script>    
+    <mx:TextArea width="400" height="300" id="out"/>    
+</mx:Application>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="*" layout="horizontal"
+	creationComplete="srv.getProducts()">
+	
+	<mx:Style source="testdrive.css"/>
+
+	<mx:Script>
+		<![CDATA[
+		
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+		
+			[Bindable]
+			private var products:ArrayCollection;
+			
+			private function resultHandler(event:ResultEvent):void
+			{
+				products = event.result as ArrayCollection;	
+			}			
+			
+		]]>
+	</mx:Script>
+
+	<mx:RemoteObject id="srv" destination="product">
+		<mx:method name="getProducts" result="resultHandler(event)"/>
+	</mx:RemoteObject>
+	
+	<mx:Panel title="Catalog" width="100%" height="100%">
+		<mx:TileList id="list" dataProvider="{products}" itemRenderer="Thumb" width="100%" height="100%"/> 
+	</mx:Panel>
+	
+	<ProductView product="{list.selectedItem}"/>
+		
+</mx:Application>

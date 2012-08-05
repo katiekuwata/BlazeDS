@@ -1,0 +1,11 @@
+
+public class ServicesAndPorts4 {
+
+  public int echoInteger(int val){
+    return (4*val);
+  }
+
+  public String echoName(){
+	return "ServicesAndPorts4";
+  }
+}

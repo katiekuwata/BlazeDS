@@ -1,0 +1,92 @@
+<?xml version="1.0" ?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2007 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application 
+		xmlns:mx="http://www.adobe.com/2006/mxml" 
+		xmlns:qa="http://www.adobe.com/2006/flexqa"
+		creationComplete="run()"
+		>
+	
+	<!-- This test duplicates the mxunit/tests/proxyService/httpservice/amfchannel/hs_send_with_request.mxml -->
+	<!--	
+		<mx:HTTPService 
+			id="hsWithParamsPost" 
+			destination="HTTPProxyDest_runtime"
+			method="post"
+			useProxy="true"
+			result="onServiceResultWithParamsPost(event)" 
+			fault="onServiceFaultWithParamsPost(event)"
+			>
+			
+			<mx:request>            
+	                <mx:value>value</mx:value>                            
+	        </mx:request>		
+				
+		</mx:HTTPService>	 
+	-->
+	
+	<mx:Script>
+	
+	<![CDATA[
+
+		import qa.mxunit.*;
+		import mx.rpc.events.*;
+		import mx.controls.*;
+		import mx.rpc.http.*;
+		import mx.messaging.*;
+		import mx.messaging.channels.*;
+
+		public var resultWithParamsPost : Object;
+	    public var myProxyService:HTTPService;
+	    //Use this param to send as well as to test what get returned
+	    public var testValue:String = "HTTPProxyDest works";
+
+        public function onServiceFaultWithParamsPost(event:FaultEvent):void {
+            trace("service fault: " + event.fault.faultString);
+        }
+
+  		public function onServiceResultWithParamsPost(event:ResultEvent):void {
+			resultWithParamsPost = event.result;
+		}
+		
+		public function run():void {
+			myProxyService = new HTTPService();
+			myProxyService.destination = "HTTPProxyDest_runtime";                                                        
+			myProxyService.method="POST"; 
+			myProxyService.useProxy=true;
+			myProxyService.addEventListener("result", onServiceResultWithParamsPost);
+			myProxyService.addEventListener("fault", onServiceFaultWithParamsPost);
+			var cs:ChannelSet = new ChannelSet();     
+			cs.addChannel(new AMFChannel(null, "http://{server.name}:{server.port}/qa-regress/messagebroker/amf")); 
+			myProxyService.channelSet = cs;
+            myProxyService.send({value: testValue});
+			
+			// run test
+            MXUnitManager.delay = 6000;
+			MXUnitManager.addTests(this,["HTTPProxyDestTest"],2000);
+		}
+
+		public function HTTPProxyDestTest():void {
+
+			Assert.isTrue(resultWithParamsPost.parameters.value == testValue, "result.parameters.value should be '" + testValue + "'");
+		}		
+
+	]]>
+	</mx:Script>
+</mx:Application>

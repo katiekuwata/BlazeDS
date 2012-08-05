@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2007 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa" creationComplete="run()">  
+
+    <!-- 
+        The runtimeMessageDestModifiedTest uses the ROMessageDestination remote object to remove/create an existing 
+        runtime destination and change its endpoint.  
+        The next test (consumerSubscribeTest) pings the MessageDest_ToBeModified destination to verify that it was recreated
+        correctly by the remote object.
+    -->	
+    <mx:RemoteObject destination="ROMessageDestination" id="ro" />
+    
+    <mx:Consumer id="con" destination="MessageDest_ToBeModified" />
+    	
+	<mx:Script>
+	<![CDATA[
+	    import qa.utils.TestTaskEvent;
+	    import qa.utils.TestTask;
+        import qa.mxunit.Assert;
+        import qa.mxunit.MXUnitManager;
+        import mx.rpc.events.*;
+		import mx.rpc.remoting.*;
+		import mx.messaging.*;		
+		import mx.messaging.channels.*;
+	    import mx.events.PropertyChangeEvent;
+
+		private var msgDestination:String = "MessageDest_ToBeModified";
+		private var t:TestTask;
+
+        private function handler(event:Event):void {
+            
+            if (event is ResultEvent) 
+            {
+                Assert.assertTrue("Remote call ended sucessfully", true);
+            } 
+            else 
+            {
+                Assert.fail("Remote call faulted: " + FaultEvent(event).fault.faultString);                
+            }
+        }
+
+		private function run():void {
+            MXUnitManager.addTests(this,["runtimeMessageDestRemoveTest", "runtimeMessageDestCreateTest", "consumerSubscribeTest"], 3000);
+		}
+
+        /*
+         * This test is checking if the remote object creates the MessageDest_ToBeModified destination
+         */            
+        public function runtimeMessageDestCreateTest():void {
+            
+			MXUnitManager.getInstance().currentTest.chain(ro, [ResultEvent.RESULT, FaultEvent.FAULT], handler);			
+			ro.createDestination(msgDestination);
+		}
+        
+        /*
+         * This test is checking if the remote object removes MessageDest_ToBeModified destination
+         */            
+        public function runtimeMessageDestRemoveTest():void {
+            
+			MXUnitManager.getInstance().currentTest.chain(ro, [ResultEvent.RESULT, FaultEvent.FAULT], handler);			
+			ro.removeDestination(msgDestination);
+		}
+ 
+        /*
+         * This test is  checking if consumer can subscribe over the new channel specified in the modified 
+         * MessageDest_ToBeModified:  qa-http-polling
+         */
+        public function consumerSubscribeTest():void
+        {
+			// Specify channel to ping with via AS
+			var cs:ChannelSet = new ChannelSet();
+            cs.addChannel(new HTTPChannel("someid", "http://{server.name}:{server.port}/qa-regress/messagebroker/httppolling"));
+            con.channelSet = cs;
+            t = new TestTask();
+            MXUnitManager.getInstance().currentTest.chain(t,[TestTaskEvent.COMPLETED],consumerSubscribed); 
+            con.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChanged);
+            con.subscribe();
+        }
+
+        private function propertyChanged(event:PropertyChangeEvent):void
+        {
+            if (event.property == "subscribed")
+            {
+                if (event.oldValue == false && event.newValue == true)
+                {
+                    t.taskCompleted();
+                }
+            }                
+        }
+        private function consumerSubscribed(event:TestTaskEvent):void
+        {
+            if (event.type == TestTaskEvent.COMPLETED) 
+            {
+                Assert.assertTrue("Consumer subscribed sucessfully", true); 
+            }
+        }
+		
+	]]>
+	</mx:Script>
+    
+</mx:Application>

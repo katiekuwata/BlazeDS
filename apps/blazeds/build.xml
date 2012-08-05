@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!--
+/*************************************************************************
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ **************************************************************************/
+
+-->
+
+<project name="blazeds.war/build.xml" default="main" basedir="../..">
+
+    <property file="${basedir}/build.properties" />
+    <property name="blazeds.war" value="${basedir}/apps/blazeds" />
+    <property name="dist.dir" value="${basedir}/dist" />
+    <property name="src.dir" value="${blazeds.war}/WEB-INF/src"/>
+    <property name="classes.dir" value="${blazeds.war}/WEB-INF/classes"/>
+
+    <path id="classpath">
+        <fileset dir="${blazeds.war}/WEB-INF/lib" includes="**/*.jar" />
+    </path>
+
+    <target name="main" depends="clean,compile" />
+
+    <target name="prepare">
+        <mkdir dir="${blazeds.war}/WEB-INF/src" />
+        <mkdir dir="${blazeds.war}/WEB-INF/lib" />
+        <mkdir dir="${blazeds.war}/WEB-INF/classes" />
+    </target>
+
+    <target name="run-depend" if="src.depend">
+        <echo message="Removing class files that changed and dependent class files." />
+        <depend cache="${classes.dir}" srcdir="${src.dir}" destdir="${classes.dir}" />
+    </target>
+
+    <target name="copy-resources">
+        <copy todir="${blazeds.war}/WEB-INF/lib">
+            <fileset dir="${basedir}/lib" includes="${webapp.ce.lib}" />
+            <fileset dir="${basedir}/lib/spring" includes="**/*" />
+        </copy>
+        <copy todir="${classes.dir}">
+            <fileset dir="${basedir}/lib" includes="${webapp.classes}" />
+        </copy>
+    
+    	<propertyfile file="${blazeds.war}/WEB-INF/flex/version.properties">
+    	    <entry key="build" value="${manifest.Implementation-Version}.${build.number}"/>
+    	    <entry key="minimumSDKVersion" value="${min.sdk.version}"/>
+    	</propertyfile>
+
+    </target>
+
+    <target name="compile" depends="prepare,run-depend,copy-resources" description="compile">
+        <javac source="1.4" debug="${src.debug}" destdir="${classes.dir}" srcdir="${src.dir}" classpathref="classpath" />
+    </target>
+
+    <target name="package" description=" Creates distribution war file">
+        <mkdir dir="${dist.dir}" />
+        <war file="${dist.dir}/blazeds.war" webxml="${blazeds.war}/WEB-INF/web.xml">
+            <manifest>
+                <attribute name="Sealed" value="${manifest.sealed}" />
+                <attribute name="Implementation-Title" value="${manifest.Implementation-Title} - BlazeDS Application" />
+                <attribute name="Implementation-Version" value="${manifest.Implementation-Version}.${build.number}" />
+                <attribute name="Implementation-Vendor" value="${manifest.Implementation-Vendor}" />
+            </manifest>
+            <fileset dir="${blazeds.war}">
+                <exclude name="build.xml" />
+                <exclude name="WEB-INF/src/**/*.java" />
+                <exclude name="WEB-INF/jsp/**/*" />
+                <exclude name="WEB-INF/sessions/**/*" />
+                <!-- This is included in the war task already -->
+                <exclude name="WEB-INF/web.xml" />
+            </fileset>
+        </war>
+    </target>
+
+    <target name="clean" description="--> Removes jars and classes">
+        <delete quiet="true">
+            <fileset dir="${blazeds.war}/WEB-INF/lib" includes="${webapp.ce.lib},${old.jars.to.clean}" />
+        </delete>
+        <delete quiet="true">
+            <fileset dir="${classes.dir}" includes="**/*.class"/>
+        </delete>
+        <delete quiet="true" file="${dist.dir}/blazeds.war" />
+    </target>
+
+</project>

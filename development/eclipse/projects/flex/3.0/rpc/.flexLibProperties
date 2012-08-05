@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flexLibProperties version="1">
+<includeClasses>
+<classEntry path="[source path] rpc-src/RPCClasses"/>
+</includeClasses>
+<includeResources/>
+<namespaceManifests>
+<namespaceManifestEntry manifest="manifest.xml" namespace="http://www.adobe.com/2006/mxml"/>
+</namespaceManifests>
+</flexLibProperties>

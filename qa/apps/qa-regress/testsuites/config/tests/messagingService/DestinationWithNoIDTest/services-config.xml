@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<services-config>
+	<services>		
+		<service class="flex.messaging.services.MessageService" id="message-service">
+			<adapters>
+	        	<adapter-definition class="flex.messaging.services.messaging.adapters.ActionScriptAdapter" default="true" id="actionscript"></adapter-definition>
+	        	<adapter-definition class="flex.messaging.services.messaging.adapters.JMSAdapter" id="jms"></adapter-definition>
+			</adapters>
+			<destination>
+		        <properties>
+		            <network>
+		                <!-- idle time in minutes before a subscriber will be unsubscribed -->
+		                <!-- '0' means don't force subscribers to unsubscribe automatically -->
+		                <session-timeout>0</session-timeout>
+		            </network>
+		            <server>
+		                <!-- ttl of 0 means live forever -->
+		                <message-time-to-live>0</message-time-to-live>
+		                <!-- options to make this a durable destination -->
+		                <durable>false</durable>
+		            </server>
+		        </properties>
+		        <channels>            
+				   	<channel ref="qa-polling-amf"></channel> 					
+        		</channels>
+	    	</destination>	
+		</service>
+	</services>
+	<channels>
+		<channel-definition class="mx.messaging.channels.AMFChannel" id="qa-polling-amf">
+        	<endpoint class="flex.messaging.endpoints.AMFEndpoint" url="http://{server.name}:{server.port}/qa-regress/messagebroker/amfpolling"></endpoint>
+	        <properties>
+	            <polling-enabled>true</polling-enabled>
+	            <polling-interval-millis>2000</polling-interval-millis>
+	            <serialization>
+	                <legacy-collection>true</legacy-collection>
+	            </serialization>
+	        </properties>
+    	</channel-definition>
+	</channels>
+</services-config>

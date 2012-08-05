@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"  creationComplete="setUp()">           
+    
+    <mx:Script>
+    <![CDATA[
+        /**
+        *    Test case for bug BLZ-118 where calling ChannelSet.login will send a empty destination ID to the server.
+        *    1) Add the following cluster config to the service-config.xml.  Add jgroups.jar and jgroups-tcp.xml as needed.
+        *         You don't need a second cluster instance.
+        *        <clusters>
+        *            <cluster id="default-cluster" properties="jgroups-tcp.xml" default="false" url-load-balancing="true" />			
+        *        </clusters>
+        *    2) replace all the tokens (server.name, server.port, and context.root) for the data-polling-amf channel 
+        *    3) add destination (see notes below)
+        *    4) run the test and make sure it passes      
+        *    5) if debug logging is enabled, you shouldn't see any exception for cluster_request operation of the command message  
+        */
+        
+        
+        import mx.rpc.events.ResultEvent;
+        import mx.rpc.events.FaultEvent;
+        import mx.events.PropertyChangeEvent;
+    	   
+        import mx.messaging.ChannelSet;        
+        import qa.mxunit.Assert;
+        import qa.mxunit.MXUnitManager;
+        import mx.messaging.messages.*;
+        import mx.messaging.config.*;
+        import mx.messaging.events.*;
+        import mx.messaging.events.ChannelEvent;
+ 
+        
+        /**
+        *  Name of the clustered destination. Add the following config to message-config.xml if not existing
+        *    <destination id="chat">
+        *        <channels>
+        *           <channel ref="data-polling-amf"></channel>
+        *        </channels>
+		*        <properties>
+        *           <network>
+		*    	        <cluster ref="default-cluster" />
+		*	        </network>
+        *       </properties>
+	    *    </destination> 
+        */
+        private var destination:String = "chat";     
+       
+        private var cs:ChannelSet;
+        private var operation:String;  
+        private var loginResult:Boolean;
+        private var logoutResult:Boolean;
+        private var clusteredResult:Boolean;
+                
+        public function setUp():void {    
+            
+            loginResult = false;
+            logoutResult = true;
+            clusteredResult = false;
+            
+           //get the ChannelSet names for the destination from ServerConfig 
+           cs = ServerConfig.getChannelSet(destination) as ChannelSet;     
+           cs.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, handleChange);
+           cs.addEventListener(ResultEvent.RESULT, handleResult);           
+           cs.addEventListener(ChannelEvent.DISCONNECT, handleDisconnect);
+           cs.addEventListener(FaultEvent.FAULT, handleFault);
+           
+           runClusterLogin();                  
+        }
+        
+        private function runClusterLogin():void {
+            operation = "login";
+            cs.login("sampleuser", "samplepassword");                       
+        }
+
+        private function runClusterLogout():void {  
+            operation = "logout";
+            cs.logout(null);
+        }
+        
+        private function runClustered():void
+        {
+            log("Clustered=" + cs.clustered);
+            clusteredResult = cs.clustered;            
+        }
+       
+        private function handleResult(event:ResultEvent): void
+        {   
+            if (operation == "login")
+            {
+                runClustered();
+                log("HandleConnect: connected=" + cs.connected);            
+                loginResult = cs.connected;
+                callLater(runClusterLogout);
+            } 
+        }
+        
+        private function handleDisconnect(event:ChannelEvent):void
+        {   
+            log("HandleDisconnect: connected=" + cs.connected);
+            logoutResult = cs.connected;            
+            MXUnitManager.addTests(this, ["testResult"], 3000);      
+        }
+                
+        private function handleFault(event:FaultEvent):void
+        {
+            log(operation + " Fault:" + event.fault.faultString);    
+        }
+        
+        private function handleChange(event:PropertyChangeEvent):void
+        {
+            log("PropertyChange: " + event.property + "=" + event.oldValue + "=>" + event.newValue);
+        }
+        
+        public function testResult():void
+        {
+            Assert.assertTrue("after login, ChannelSet should be connected", loginResult);
+            Assert.assertTrue("ChannelSet should be clustered", clusteredResult);        
+            Assert.assertTrue("after logout, ChannelSet should be disconnected", !logoutResult);
+        }
+        
+        private function log(s:String):void
+        {
+            ta.text += s+ "\n";
+        }
+    ]]>
+    </mx:Script>  
+    <mx:HBox >
+        <mx:Button label="Login" click="runClusterLogin()" />
+        <mx:Button label="Logout" click="runClusterLogout()" />
+        <mx:Button label="Clustered" click="runClustered()" />        
+    </mx:HBox>   
+    <mx:TextArea id="ta" width="50%" height="50%" />      
+</mx:Application>

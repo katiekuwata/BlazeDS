@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1g
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/28/2005
+
+Negative test for an invalid service id (list delimiters chars not allowed in ids).
+
+ -->
+<services-config xmlns="http://www.adobe.com/2006/flex-enterprise-services">
+    <services>
+        <service id="foo-service,"
+            class="flex.messaging.services.FooService"
+            messageTypes="flex.messaging.messages.FooMessage"/>
+    </services>
+</services-config>

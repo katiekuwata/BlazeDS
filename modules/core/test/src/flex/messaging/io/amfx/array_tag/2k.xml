@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 2k
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/27/2005
+
+Tests that an invalid ECMA ActionScript Array property name
+will be caught in an AMFX stream.
+
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array ecma="true">
+            <item name="">
+                <string>Invalid Property</string>
+            </item>
+        </array>
+    </body>
+</amfx>

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="runTests()">
+<!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+<mx:TraceTarget/>
+    <mx:RemoteObject id="amfRo" destination="qa.amf.echoservice.Echo"
+        result="reportFailure()"
+        fault="VerifyFault(event.fault)"/>
+    <mx:RemoteObject id="httpRo" destination="qa.http.echoservice.Echo"
+        result="reportFailure()"
+        fault="VerifyFault(event.fault)"/>
+
+    <mx:Script>
+    <![CDATA[
+    import qa.mxunit.*;
+    private var e:CustomException;
+    private function runTests():void
+    {
+        MXUnitManager.detectTests(this, 3000);
+    }
+    /**
+    *  Test Strong type custom exception through amf channel
+    **/
+    public function testAmfRO():void
+    {
+        amfRo.getCustomException();
+        Assert.hasPendingTest = true;
+    }
+    /**
+    *  Test Strong type custom exception through http channel
+    *  RemoteObject throws a blazeds.qa.remotingService.CustomException and 
+    *  deserialized as CustomException actionscript class instance
+    **/
+    public function testHttpRO():void
+    {
+        httpRo.getCustomException();
+        Assert.hasPendingTest = true;
+    }
+    public function reportFailure():void
+    {
+        Assert.fail('Should not has result event');
+        Assert.hasPendingTest=false
+    }
+    public function VerifyFault(fault:Object):void
+    {
+        Assert.assertTrue("Root Cause is CustomException : ", (fault.rootCause is CustomException));
+        Assert.assertEquals("Root Cause Object reason: ", "some reason", fault.rootCause.reason);
+        Assert.assertNotNull("faultString is not null:" + fault.faultString, fault.faultString)
+        Assert.hasPendingTest = false;
+    }
+    ]]>
+    </mx:Script>
+</mx:Application>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 11e
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/23/2005
+
+Tests that dates can be sent by reference in an AMFX stream.
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array length="3">
+            <string>Locus classicus</string>
+            <string id="0" />
+            <string id="0" />
+        </array>
+    </body>
+</amfx>

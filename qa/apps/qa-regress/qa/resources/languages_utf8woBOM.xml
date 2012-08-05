@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<world>
+	<country>
+		<name>America</name>
+		<language>English</language>
+	</country>
+	<country>
+		<name>日本</name>
+		<language>日本語</language>
+	</country>
+	<country>
+		<name>test</name>
+		<language>①②～－</language>
+	</country>
+</world>

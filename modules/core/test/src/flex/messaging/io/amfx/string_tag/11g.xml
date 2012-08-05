@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 11g
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/24/2005
+
+Tests that superfluous attributes do not interfere
+with parsing of string values in an AMFX stream.
+
+PLEASE DO NOT REFORMAT THIS XML FILE
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <array length="3">
+            <string benign="true"  />
+            <string benign=""></string>
+            <string benign="true">foo</string>
+        </array>
+    </body>
+</amfx>

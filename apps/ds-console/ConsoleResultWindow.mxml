@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" title="Results" width="200" height="200" showCloseButton="true" close="close()" borderStyle="solid">
+	<mx:Script>
+	<![CDATA[
+
+		import mx.managers.*;
+
+		public function showResult(result:Object):void
+		{
+			resultMessage.text = result.toString();
+		}
+
+		public function showSuccess():void
+		{
+			resultMessage.text = "Operation executed";
+		}
+
+		private function close():void
+		{
+			PopUpManager.removePopUp(this);
+		}
+
+	]]>
+	</mx:Script>
+	<mx:Spacer height="20%"/>	    
+	<mx:VBox height="80%">
+	   <mx:Label id="resultMessage" /> 
+	</mx:VBox>
+	
+</mx:TitleWindow>

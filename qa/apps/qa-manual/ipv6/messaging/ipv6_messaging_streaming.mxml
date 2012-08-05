@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" width="100%" height="100%" creationComplete="startTest()">
+
+	<mx:Script>
+		<![CDATA[
+		import mx.events.PropertyChangeEvent;				
+		
+		/*************************************************************************************
+		*   This example tests the usage of IPv6 address in the MessagingService destination.
+		*   The destination setting in the messaging-config.xml as below
+		* 
+		*	<destination id="MyTopic">
+		*		<channels>           
+		*    			<channel ref="data-polling-amf"></channel>
+		*		   	<channel ref="data-secure-polling-amf"></channel>    
+		*			<channel ref="qa-streaming-amf"></channel>
+		*		</channels>
+		*	</destination>		
+		* 
+		*   Request the app with an IPv6 address (global IPv6 address and [::1]) and change
+		*   the targetUrl accordingly.
+		**************************************************************************************/
+		
+		import mx.messaging.channels.StreamingAMFChannel;	
+		import mx.messaging.channels.AMFChannel;
+		import mx.messaging.messages.AsyncMessage;
+		import mx.messaging.Producer;
+		import mx.messaging.Consumer;	
+		import mx.messaging.ChannelSet;		    
+		import mx.messaging.Channel;	    		
+		import mx.messaging.events.*;
+		import qa.mxunit.*;
+		
+		private var consumer:Consumer;
+		private var producer:Producer;
+		private var targetUrl:String = "[::1]";
+		private var dest:String = "MyTopic";
+			
+		private var producerResultType:String = "";
+		private var consumerResult:String = "";
+		
+		private function startTest():void
+		{
+			var cs:ChannelSet = new ChannelSet();
+			var ch:StreamingAMFChannel = new StreamingAMFChannel("qa-streaming-amf", "http://" +targetUrl + ":8400/qa-manual/messagebroker/streaming-amf");
+			// optional you can use other channels
+			//var ch:AMFChannel = new AMFChannel("data-polling-amf", "http://" +targetUrl + ":8400/qa-manual/messagebroker/amfpolling");
+			//ch.pollingInterval = 2;
+			//ch.pollingEnabled = true;
+			cs.addChannel(ch);
+								
+			producer = new Producer();
+			producer.destination = dest;
+			producer.addEventListener(MessageAckEvent.ACKNOWLEDGE, proAcknowledgeHandler);
+			producer.addEventListener(MessageFaultEvent.FAULT, proFaultHandler);
+			producer.channelSet = cs;
+
+			consumer = new Consumer();
+			consumer.destination = dest;
+			consumer.addEventListener(MessageEvent.MESSAGE, messageHandler);
+			consumer.addEventListener(MessageFaultEvent.FAULT, messageFaultHandler);
+			consumer.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler); 
+			consumer.channelSet = cs;	
+			consumer.subscribe();
+		}
+						
+		private function send():void
+		{
+			var message:AsyncMessage = new AsyncMessage();
+			message.body = {
+			    msg: ti_msg.text
+			};
+			producer.send(message);	
+			
+			MXUnitManager.delay = 3000;
+			MXUnitManager.addTests(this, ["testProResult", "testConResult"], 3000);
+		}
+		
+		private function propertyChangeHandler(event:PropertyChangeEvent):void
+		{
+			// kick off the test only if the consumer subscription is successful
+			if (event.property == "subscribed" && consumer.subscribed == true)
+			{
+				send();
+			}
+		}
+		
+		private function messageFaultHandler(event:MessageFaultEvent):void
+		{			
+			log("ConsumerFault:"+ event.faultDetail);			
+		}
+		 
+		private function messageHandler(event:MessageEvent):void
+		{		   		   			   	
+			log("ConsumerMessage: " + event.message.body.msg);
+			consumerResult = event.message.body.msg;
+		}
+		
+		private function proAcknowledgeHandler(event:MessageAckEvent):void
+		{
+			log("Ack received");	
+			producerResultType = "ack";
+		}
+		
+		public function proFaultHandler(event:MessageFaultEvent):void
+		{			
+			log("ProducerFault: " + event.faultDetail);
+			producerResultType = "fault";
+		}
+		
+		private function log(s:String):void
+		{
+			ta.text += s + "\n";
+		}
+		
+		public function testConResult():void
+		{			
+			Assert.assertEquals("Expect a consumer result event", ti_msg.text, consumerResult);
+			
+			// cleanup
+			consumer.removeEventListener(MessageEvent.MESSAGE, messageHandler);
+			consumer.removeEventListener(MessageFaultEvent.FAULT, messageFaultHandler);
+			consumer.unsubscribe();
+			consumer.disconnect();
+					
+		}
+		
+		public function testProResult():void
+		{
+			Assert.assertEquals("Expect an acknowledge message", "ack", producerResultType);
+			// cleanup
+			producer.removeEventListener(MessageAckEvent.ACKNOWLEDGE, proAcknowledgeHandler);
+			producer.removeEventListener(MessageFaultEvent.FAULT, proFaultHandler);
+			producer.disconnect();	
+		}
+
+		]]>
+	</mx:Script>
+	
+	<mx:TextArea id="ta" width="50%" height="30%" editable="false"/>
+	
+	<mx:HBox width="50%" paddingTop="0" paddingBottom="0">
+		<mx:TextInput id="ti_msg" text="hello" width="90%"/>		
+		<mx:Button label="Send" click="ta.text=producerResultType=consumerResult='';startTest()"/> 		
+	</mx:HBox>
+	
+</mx:Application>

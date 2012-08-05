@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+    creationComplete="creationCompleteHandler();">
+    
+    <!-- A simple remoting sample where client sends a text and server simply
+         echoes it back using an AMF channel.
+    -->
+    <mx:Panel id="mainPanel" height="100%" width="100%">
+        <mx:HBox>    
+        	<mx:Label text="Enter a text for the server to echo"/>        
+            <mx:TextInput id="ti" text="Hello World!"/>
+        	<mx:Button label="Send" click="echo()"/>
+            <mx:Button label="Clear" click='ta.text = ""'/>                	
+        </mx:HBox>        	
+        <mx:TextArea id="ta" width="100%" height="100%"/>           
+    </mx:Panel>
+
+    <mx:RemoteObject id="remoteObject" 
+        destination="filteredAck"
+        result="resultHandler(event)"
+        fault="faultHandler(event)"/>
+                    
+    <mx:Script>
+        <![CDATA[
+        
+    	    import mx.rpc.events.FaultEvent;	                
+            import mx.rpc.events.ResultEvent;
+            
+			import mx.logging.Log;
+	        import mx.logging.targets.TraceTarget;			
+	        					
+    		private function creationCompleteHandler():void
+    		{
+                var target:TraceTarget = new TraceTarget();
+		        target.includeLevel = true;
+		        target.filters = ["mx.messaging.*", "mx.rpc.*"];
+		        Log.addTarget(target);            			
+    		}
+    		     		 
+            private function echo():void
+            {
+                var text:String = ti.text;
+                remoteObject.echo(text);
+            }
+                                                            
+            private function resultHandler(event:ResultEvent):void
+            {
+                ta.text += "Server responded: "+ event.result + "\n";  
+            }
+                       
+            private function faultHandler(event:FaultEvent):void
+            {
+                ta.text += "Received fault: " + event.fault + "\n";
+            }      
+            
+        ]]>
+    </mx:Script>
+
+</mx:Application>

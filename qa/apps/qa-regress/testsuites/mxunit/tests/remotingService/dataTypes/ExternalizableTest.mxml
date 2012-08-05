@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"  creationComplete="initApp()">
+<!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+    <mx:RemoteObject destination="qa.echoservice.Echo" id="ro" />
+    <mx:Script>
+        <![CDATA[
+            import mx.rpc.events.ResultEvent;
+            import qa.mxunit.Assert;
+            import mx.rpc.AsyncResponder;
+            import mx.rpc.IResponder;
+            import mx.rpc.AsyncToken;
+            import qa.mxunit.MXUnitManager;
+            
+            private var manager: MXUnitManager;
+            private function initApp():void
+            {
+                manager = MXUnitManager.getInstance();
+                var tests: Array = new Array();
+                tests.push("testExtDate");
+                
+                manager.addTests(this, tests, 5000); 
+            }
+            
+            public function testExtDate():void
+            {
+                var testDate: Object = new ExternalizableDate(2006, 3, 9);
+                var async: Function = manager.currentTest.addAsync(testExtDateHandler);
+                var call: AsyncToken = ro.echoDate(testDate);
+                var responder: IResponder = new AsyncResponder(async, async);
+                call.addResponder(responder);
+            }
+            
+            public function testExtDateHandler(event:Object, token:Object):void
+            {
+                Assert.assertTrue("Should be ResultEvent", event is ResultEvent);
+                Assert.assertTrue("Should be instance of ExternalizableDate", event.result is ExternalizableDate);
+                Assert.assertEquals("Hours should be 0", 999, event.result.hours);
+            }
+        ]]>
+    </mx:Script>
+</mx:Application>

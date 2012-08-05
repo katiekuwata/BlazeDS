@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+
+<!--
+/*************************************************************************
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ **************************************************************************/
+-->
+
+<project name="BlazeDS QA Source" default="main" basedir="..">
+	<property environment="env"/>
+    <property name="qa.dir" value="${basedir}"/>
+	
+	<property name="frameworks.filedrop" value="${qa.dir}/resources/frameworks"/>
+
+	<target name="main" depends="clean,frameworks"/>
+	
+	<target name="clean">
+		<echo message="Removing expanded framework files..."/>
+		<delete dir="${build.dir}"/>	
+		<delete failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${framework.filedrop}/expanded">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+        <delete failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${qa.dir}/frameworks/libs">
+                <include name="**/*.swc"/>
+            </fileset>
+        </delete>
+        <delete failonerror="false" includeEmptyDirs="true">
+            <fileset dir="${qa.dir}/lib">
+                <include name="qa-flexunit.jar"/>
+                <include name="qa-mxunit.jar"/>
+                <include name="qa-utils.jar"/>
+            </fileset>
+        </delete>
+	</target>
+	
+	<target name="frameworks">
+		<!--unzip qa-frameworks.zip -->
+		<unzip src="${frameworks.filedrop}/qa-frameworks.zip" dest="${frameworks.filedrop}/expanded"/>
+		
+		<!-- copy swcs to libs folder -->
+		<copy todir="${qa.dir}/frameworks/libs">
+			<fileset dir="${frameworks.filedrop}/expanded">
+				<include name="*.swc"/>
+			</fileset>
+		</copy>
+		<!-- copy jars to lib folder -->
+		<copy todir="${qa.dir}/lib">
+			<fileset dir="${frameworks.filedrop}/expanded">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>		
+	</target>
+
+</project>

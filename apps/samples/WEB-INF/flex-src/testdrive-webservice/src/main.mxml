@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" backgroundColor="#FFFFFF">
+	
+	<mx:WebService id="srv" destination="ws-catalog" useProxy="true" showBusyCursor="true"/>
+	
+	<mx:DataGrid dataProvider="{srv.getCategories.lastResult}" width="100%" height="100%">
+		<mx:columns>
+			<mx:DataGridColumn dataField="categoryId" headerText="Category Id"/>
+			<mx:DataGridColumn dataField="categoryName" headerText="Category Name"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
+	<mx:Button label="Get Data" click="srv.getCategories()"/>
+	
+</mx:Application>

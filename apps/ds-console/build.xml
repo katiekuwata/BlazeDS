@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+
+<!--
+/*************************************************************************
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+ **************************************************************************/
+
+-->
+
+<project name="ds-console.war/build.xml" default="main" basedir="../..">
+
+    <property environment="env" />
+        
+    <property file="${basedir}/build.properties"/>
+    <property name="ds-console.war" value="${basedir}/apps/ds-console"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="src.dir" value="${ds-console.war}/WEB-INF/src"/>
+    <property name="classes.dir" value="${ds-console.war}/WEB-INF/classes"/>
+    <property name="mxmlc.dir" value="${basedir}/bin"/>
+	
+    
+    <property name="application.name" value="DS Console" />
+    <property name="application.dir" value="${ds-console.war}" />
+    <property name="application.file" value="console" />
+
+    <path id="classpath">
+        <fileset dir="${ds-console.war}/WEB-INF/lib" includes="**/*.jar"/>
+    </path>
+
+    <target name="main" depends="clean,ds-console"/>
+    <target name="ds-console" depends="compile,compile-swf"/>
+
+    <property environment="env"/>
+    <property name="ant-contrib.jar" location="${env.ANT_HOME}/lib/ant-contrib-1.0b2.jar"/>
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
+
+    <target name="prepare">
+        <mkdir dir="${ds-console.war}/WEB-INF/lib"/>
+        <mkdir dir="${ds-console.war}/WEB-INF/classes"/>
+    </target>
+
+    <target name="copy-resources">
+        <fail unless="local.sdk.lib.dir" message="must specify local.sdk.lib.dir in server/build.properties"/>
+        <fail unless="local.sdk.frameworks.dir" message="must specify local.sdk.frameworks.dir in build.properties"/>
+
+        <!-- copy to the lib directory -->
+        <copy todir="${ds-console.war}/WEB-INF/lib">
+            <fileset dir="${basedir}/lib" includes="${webapp.lib}" />
+        </copy>
+
+        <!-- copy to the classes directory -->
+        <copy todir="${ds-console.war}/WEB-INF/classes">
+            <fileset dir="${ds-console.war}/WEB-INF/src">
+                <include name="**/*.xml"/>
+            </fileset>
+            <fileset dir="${basedir}/lib" includes="${webapp.classes}" />
+        </copy>
+    </target>
+
+    <target name="run-depend" if="src.depend">
+        <echo message="Removing class files that changed and dependent class files."/>
+        <depend cache="${classes.dir}" srcdir="${src.dir}" destdir="${classes.dir}"/>
+    </target>
+
+    <target name="compile" depends="prepare,run-depend,copy-resources" description="compile">
+        <javac source="1.4" debug="${src.debug}" destdir="${classes.dir}" srcdir="${src.dir}" classpathref="classpath"/>
+    </target>
+
+    <target name="compile-swf" >
+
+        <delete file="${ds-console.war}/${application.file}.swf"/>
+        <taskdef resource="flexTasks.tasks" classpath="${basedir}/ant/lib/flexTasks.jar" />
+        <property name="FLEX_HOME" value="${basedir}"/>
+
+        <mxmlc file="${application.dir}/${application.file}.mxml" 
+            output="${application.dir}/${application.file}.swf"
+            actionscript-file-encoding="UTF-8"
+            keep-generated-actionscript="false"
+            incremental="false"
+            services="${ds-console.war}/WEB-INF/flex/services-config.xml"
+            context-root="ds-console" 
+            locale="en_US">
+            <load-config filename="${basedir}/frameworks/flex-config.xml"/>
+            <target-player>10.0.0</target-player>
+            <license product="flexbuilder3" serial-number="${env.fb3_license}"/>
+            <source-path path-element="${basedir}/frameworks"/>
+            <external-library-path/>
+            <metadata>
+                <publisher name="${manifest.Implementation-Vendor}" />
+                <creator name="${manifest.Implementation-Vendor}" />
+            </metadata>
+        </mxmlc>
+
+        <html-wrapper title="${application.name}"
+            height="100%"
+            width="100%"
+            application="app"
+            swf="${application.file}"
+            version-major="10"
+            version-minor="0"
+            version-revision="0"
+            history="true"
+            template="express-installation"
+            output="${application.dir}"/>
+
+    </target>
+
+    <target name="package" description=" Creates distribution war file">
+        <mkdir dir="${dist.dir}"/>
+        <antcall target="compile-swf"/>
+        <delete file="${dist.dir}/ds-console.war"/>
+        <war file="${dist.dir}/ds-console.war"
+            webxml="${ds-console.war}/WEB-INF/install-web.xml">
+            <manifest>
+                <attribute name="Sealed" value="${manifest.sealed}"/>
+                <attribute name="Implementation-Title" value="${manifest.Implementation-Title} - ${application.name}"/>
+                <attribute name="Implementation-Version" value="${manifest.Implementation-Version}.${build.number}"/>
+                <attribute name="Implementation-Vendor" value="${manifest.Implementation-Vendor}"/>
+            </manifest>
+            <fileset dir="${ds-console.war}">
+                <include name="index.html"/>
+                <include name="console.swf"/>
+                <include name="AC_OETags.js"/>
+                <include name="history/*"/>
+                <include name="WEB-INF/flex/services-config.xml"/>
+                <include name="WEB-INF/classes/*"/>
+                <include name="WEB-INF/lib/**/*"/>
+            </fileset>
+        </war>
+    </target>
+
+    <target name="clean" description="--> Removes jars and classes">
+        <delete quiet="true">
+            <fileset dir="${ds-console.war}/" includes="AC_OETags.js,index.html,console.swf,history/*"/>
+        </delete>
+        <delete quiet="true">
+            <fileset dir="${ds-console.war}/WEB-INF/lib" includes="${webapp.lib},${webtier.lib}"/>
+        </delete>
+        <delete quiet="true" includeEmptyDirs="true">
+            <fileset dir="${ds-console.war}/WEB-INF/flex/locale" includes="**/*"/>
+        </delete>        
+        <delete quiet="true">
+            <fileset dir="${ds-console.war}/WEB-INF/flex/jars" includes="**/*"/>
+        </delete>
+        <delete quiet="true" includeEmptyDirs="true">
+            <fileset dir="${ds-console.war}/WEB-INF/flex/frameworks" includes="**/*"/>
+        </delete>
+        <delete quiet="true" includeEmptyDirs="true">
+            <fileset dir="${ds-console.war}/WEB-INF/flex" includes="*.ser,mxml-manifest.xml,cache.dep"/>
+        </delete>
+        <delete quiet="true">
+            <fileset dir="${classes.dir}" includes="**/*.class"/>
+        </delete>
+        <delete quiet="true" file="${dist.dir}/console.war"/>
+        <delete quiet="true" file="${dist.dir}/ds-console.war"/>
+    </target>
+
+</project>

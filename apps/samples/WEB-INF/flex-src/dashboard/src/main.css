@@ -1,0 +1,17 @@
+Application {
+    paddingTop: 12;
+    verticalGap: 12;
+}
+
+Panel {
+    cornerRadius: 6;
+    panelBorderStyle: "roundCorners";
+}
+
+Button {
+	cornerRadius: 4;	
+}
+
+HSlider {
+	showTrackHighlight: true;
+}

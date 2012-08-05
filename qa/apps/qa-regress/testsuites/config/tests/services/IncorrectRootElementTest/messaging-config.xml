@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+
+    <adapters>
+        <adapter-definition class="flex.messaging.services.messaging.adapters.ActionScriptAdapter" default="true" id="actionscript"></adapter-definition>
+        <adapter-definition class="flex.messaging.services.messaging.adapters.JMSAdapter" id="jms"></adapter-definition>
+    <adapter-definition class="qa.messaging.DynamicDestinationAdapter" id="secured-actionscript"></adapter-definition>
+</adapters>
+

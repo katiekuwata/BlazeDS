@@ -1,0 +1,17 @@
+Application {
+	background-color: #E57000;
+	themeColor: #E57000;
+}
+
+TileList {
+	selection-color: #FFCC33;
+	roll-over-color: #FFCC99;
+}
+
+Panel {
+	roundedBottomCorners: true;
+}
+
+.price {
+	color: #E57000;
+}

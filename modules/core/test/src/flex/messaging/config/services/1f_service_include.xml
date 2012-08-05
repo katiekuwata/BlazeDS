@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+FDS Config Unit Test - 1f - service include
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 7/28/2005
+
+ -->
+<service id="foo-service"
+    class="flex.messaging.services.FooService"
+    messageTypes="flex.messaging.messages.FooMessage">
+
+    <adapters>
+        <adapter-definition class="flex.messaging.services.foo.FooAdapter" id="foo" default="true" />
+    </adapters>
+
+    <default-channels>
+        <channel ref="foo-channel" />
+    </default-channels>
+
+    <destination id="foo-dest">
+        <properties>
+            <fooString>fooValue</fooString>
+        </properties>
+    </destination>
+
+</service>

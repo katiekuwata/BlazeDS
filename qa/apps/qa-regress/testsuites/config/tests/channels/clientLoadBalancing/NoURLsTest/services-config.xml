@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<services-config>
+	<services>		
+		<service class="flex.messaging.services.MessageService" id="message-service">
+			<adapters>
+	        	<adapter-definition class="flex.messaging.services.messaging.adapters.ActionScriptAdapter" default="true" id="actionscript"></adapter-definition>
+	        	<adapter-definition class="flex.messaging.services.messaging.adapters.JMSAdapter" id="jms"></adapter-definition>
+			</adapters>
+			<destination id="MyTopic">
+		        <channels>
+			    	<channel ref="qa-polling-amf"/>			      
+    			</channels>		      
+	    	</destination>	
+		</service>
+	</services>
+	<channels>
+		<channel-definition class="mx.messaging.channels.AMFChannel" id="qa-polling-amf">
+	      <endpoint class="flex.messaging.endpoints.AMFEndpoint"/>
+	      <properties>
+	        <polling-enabled>true</polling-enabled>
+	        <client-load-balancing>
+	           <url>http://localhost:8400/qa-regress/messagebroker/pollingamf</url>
+		    </client-load-balancing>
+	      </properties>
+	    </channel-definition>
+	</channels>
+	<logging>
+	    <target class="flex.messaging.log.ServletLogTarget" level="Debug">
+	      <properties>
+	        <prefix>[BlazeDS] </prefix>
+	        <includeDate>true</includeDate>
+	        <includeTime>true</includeTime>
+	        <includeLevel>true</includeLevel>
+	        <includeCategory>true</includeCategory>
+	      </properties>
+	      <filters>
+	        <pattern>Endpoint.General</pattern>
+	      </filters>
+	    </target>
+  </logging>
+</services-config>

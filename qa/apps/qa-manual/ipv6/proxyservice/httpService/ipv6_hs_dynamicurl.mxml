@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="run()">
+		
+	<mx:HTTPService id="hs" url="/qa-manual/ipv6/proxyservice/httpService/basic.xml" 
+		method="get" useProxy="true" result="onServiceResult(event)"  fault="onServiceFault(event)" />
+	
+	<mx:HTTPService id="hsFault" url="/qa-manual/ipv6/proxyservice/basic.xml"
+		method="GET" useProxy="true"  fault="onServiceFaultTest(event)" />
+	
+	<mx:Script>	
+	<![CDATA[
+
+		/***********************************************************************************************************************
+		*   This example tests the usage of IPv6 address in the dynamic URL whitelist
+		*   in proxy service.  Modify the DefaultHttp destination in the proxy-config.xml as below
+		*	<destination id="DefaultHTTP">
+		*		<properties>
+		*	            <dynamic-url>http://{server.name}:8400/{context.root}/ipv6/proxyservice/httpService/*</dynamic-url>
+		*	        </properties>
+		*	</destination>
+		*   Request the app with an IPv6 address (global IPv6 address and [::1])
+		*   Note: for ProxyService, it doesn't allow {server.port} variable.  Use the proper port on the target server
+		***************************************************************************************************************************/
+
+		import qa.mxunit.*;
+		import mx.rpc.events.*;
+
+		public var result:Object;
+		public var type:String ="" ;
+		public var faultType:String ="";
+		public var faultString:String ="";
+
+		public function onServiceResult(event:ResultEvent):void 
+		{
+			type = event.type;
+			result = event.result;
+			log("Result=" + result);
+		}
+
+		public function onServiceFault(event:FaultEvent):void 
+		{
+			type = event.type;
+			log("http service fault: " + event.fault.faultString + " " + event.fault.faultDetail);
+		}
+
+		public function onServiceFaultTest(event:FaultEvent):void 
+		{			
+			faultString = event.fault.faultString;
+			log(faultString);
+			if (faultString.indexOf("is not allowed by the selected destination") > -1)
+				faultType = "expectedFault";
+			
+		}
+
+		public function run():void 
+		{
+			hs.send();
+			hsFault.send()
+			MXUnitManager.delay = 6000;
+			MXUnitManager.addTests(this,["testAttribute","testResult","testFault"],5000);
+		}
+
+		public function testAttribute():void 
+		{
+			Assert.assertTrue("useProxy should be TRUE", hs.useProxy == true);
+			Assert.assertTrue("method should be GET", hs.method == "get");
+			Assert.assertTrue("hs.lastResult should be event.result", hs.lastResult == result);
+		}
+
+		public function testResult():void 
+		{			
+			Assert.assertTrue("should result in a Result", type == "result");
+		}
+
+		public function testFault():void 
+		{
+			Assert.assertTrue("should result in a Fault", faultType == "expectedFault");
+		}
+
+		public function log(s:String):void
+		{
+			ta.text += s + "\n";
+		}
+
+	]]>
+	</mx:Script>
+	<mx:TextArea id="ta" width="60%" height="50%" />
+
+</mx:Application>

@@ -1,0 +1,91 @@
+<?xml version="1.0" ?>
+<!--
+ *
+ * ADOBE CONFIDENTIAL
+ * ___________________
+ *
+ *  Copyright 2008 Adobe Systems Incorporated
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of Adobe Systems Incorporated and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to Adobe Systems Incorporated and its
+ * suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Adobe Systems Incorporated.
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:qa="http://www.adobe.com/2006/flexqa" creationComplete="run()">
+
+
+	<mx:Script>
+	
+	<![CDATA[
+	    /****************************************************
+         *  mxml.HTTPService constructor rootURL and destination (bug 171569)
+        * **************************************************/
+
+		import qa.mxunit.*;
+		import mx.rpc.events.*;
+		import mx.rpc.http.mxml.HTTPService;
+
+        public var result:Object;
+		public var type : String;
+		public var faultType : String;
+		public var hs:HTTPService = new HTTPService(null,"basic.xml_http");
+		
+
+        public function onServiceResult(event:ResultEvent):void {
+        	 type = event.type;
+			 result = event.result;
+		}
+
+
+	    public function onServiceFault(event:FaultEvent):void {
+            trace("http service fault: " + event.fault.faultString);
+        }
+		
+		 public function onServiceFaultTest(event:FaultEvent):void {
+            faultType = event.type;
+        }
+
+		public function run():void {
+
+			hs.method = "get";
+			hs.useProxy = true;
+			hs.addEventListener(ResultEvent.RESULT,onServiceResult);
+			hs.addEventListener(FaultEvent.FAULT, onServiceFault);
+			hs.send();
+
+            MXUnitManager.delay = 6000;
+			MXUnitManager.addTests(this,["Test_attributes","Test_result"],10000);
+		}
+
+        public function Test_attributes():void {
+
+            Assert.isTrue(hs.useProxy == true, "useProxy should be TRUE");
+			Assert.isTrue(hs.method == "get", "method should be get");
+			Assert.isTrue(hs.lastResult == result, "hs.lastResult should be event.result");
+
+		}
+		
+		public function Test_result():void {
+
+            Assert.isTrue(type == "result", "should result in a Result");
+
+		}
+
+    	public function Test_fault():void {
+
+			Assert.isTrue(faultType == "fault", "should result in a Fault");
+
+		}
+
+
+
+	]]>
+	</mx:Script>
+</mx:Application>

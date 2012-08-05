@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+AMFX Unit Test - 8b
+
+Author: Peter Farland (pfarland@macromedia.com)
+Last Updated: 6/23/2005
+
+Tests that boundary conditions for ActionScript
+integer values can be parsed from an AMFX stream.
+ -->
+<amfx ver="3" xmlns="http://www.macromedia.com/2005/amfx">
+    <body>
+        <object>
+            <traits>
+                <string>prop0</string>
+                <string>prop1</string>
+                <string>prop2</string>
+            </traits>
+
+            <!-- int.MIN_VALUE -->
+            <int>-2147483648</int>
+
+            <!-- 0 -->
+            <int>0</int>
+
+            <!-- int.MAX_VALUE -->
+            <int>2147483647</int>
+
+        </object>
+    </body>
+</amfx>

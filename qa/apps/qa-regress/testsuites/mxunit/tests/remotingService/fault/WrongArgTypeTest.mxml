@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="runTests()">
+  <!--
+
+ ADOBE CONFIDENTIAL
+ ___________________
+
+  Copyright 2008 Adobe Systems Incorporated
+  All Rights Reserved.
+
+ NOTICE:  All information contained herein is, and remains
+ the property of Adobe Systems Incorporated and its suppliers,
+ if any.  The intellectual and technical concepts contained
+ herein are proprietary to Adobe Systems Incorporated and its
+ suppliers and may be covered by U.S. and Foreign Patents,
+ patents in process, and are protected by trade secret or copyright law.
+ Dissemination of this information or reproduction of this material
+ is strictly forbidden unless prior written permission is obtained
+ from Adobe Systems Incorporated.
+-->
+     <mx:RemoteObject id="amfRo" destination="qa.amf.echoservice.Echo"
+        result="reportFailure()"
+        fault="VerifyFault(event.fault)"/>
+    <mx:RemoteObject id="httpRo" destination="qa.http.echoservice.Echo"
+        result="reportFailure()"
+        fault="VerifyFault(event.fault)"/>
+
+    <mx:Script>
+    <![CDATA[
+    import qa.mxunit.*;
+
+    private function runTests():void
+    {
+        MXUnitManager.detectTests(this, 3000);
+    }
+    /**
+    *    Test remote call argument type mismatch
+    **/
+    public function testAmfRO():void
+    {
+        amfRo.echoInt('a');
+        Assert.hasPendingTest = true;
+    }
+    /**
+    *    Test remote call argument type mismatch
+    **/
+    public function testHttpRO():void
+    {
+        httpRo.echoInt('a');
+        Assert.hasPendingTest = true;
+    }
+    public function reportFailure():void
+    {
+        Assert.fail('Should not has result event');
+        Assert.hasPendingTest=false
+    }
+    public function VerifyFault(fault:Object):void
+    {
+
+        Assert.assertEquals("Fault Code","Server.ResourceUnavailable",fault.faultCode);
+        Assert.assertTrue(fault.faultDetail,fault.faultDetail.indexOf("argument types") > -1);
+        Assert.hasPendingTest = false;
+    }
+    ]]>
+    </mx:Script>
+</mx:Application>

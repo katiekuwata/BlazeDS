@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-opt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-proxy"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/blazeds-remoting"/>
+	<classpathentry kind="var" path="BLAZEDS_HOME/lib/xalan.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

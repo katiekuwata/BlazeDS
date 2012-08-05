@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<mx:Application  width='800' height='800' xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="MXUnitManager.detectTests(this,3000)">
+    <mx:RemoteObject destination="qa.echoservice.Echo" id="amfRemote" result="resultHandler(event)" fault="faultHandler(event)">
+        <mx:method name="echoBoolean">
+            <mx:arguments>
+                <param>true</param>
+            </mx:arguments>
+        </mx:method>
+        <mx:method name="echoBooleans">
+            <mx:arguments>
+                <param>true</param>
+                <param>false</param>
+                <param>false</param>
+                <param>true</param>
+            </mx:arguments>
+        </mx:method>
+    </mx:RemoteObject>
+    <mx:Script>
+    <![CDATA[
+        import qa.mxunit.*;
+        import mx.rpc.events.*;
+
+        private var expectedValue:Boolean = true;
+        private var expectedArray:Array = [true,false,false,true];
+
+        public function testEchoBoolean():void
+        {
+            var call:Object = amfRemote.echoBoolean.send();
+            call.expected = expectedValue;
+            Assert.hasPendingTest = true;
+        }
+
+        public function testEchoBooleans():void
+        {
+            var call:Object = amfRemote.echoBooleans.send();
+            call.expected = expectedArray;
+            Assert.hasPendingTest = true;
+        }
+
+
+        private function resultHandler(e:ResultEvent):void
+        {
+            Assert.assertEquals(e.token.expected.toString(),e.result.toString());
+            Assert.hasPendingTest = false;
+        }
+
+        private function faultHandler(e:FaultEvent):void
+        {
+            Assert.fail(e.fault.faultString);
+            Assert.hasPendingTest = false;
+        }
+
+
+    ]]>
+    </mx:Script>
+
+</mx:Application>
