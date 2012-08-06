@@ -396,6 +396,10 @@ public abstract class BaseHTTPEndpoint extends AbstractEndpoint
 
         if (!duplicateSessionDetected)
         {
+            /* kkuwata comment out duplication session check:
+             * Workaround duplication session issues via load balancer
+             * with non-sticky sessions.
+             * FIXME: Proper fix should be implement equals().
             List<FlexSession> sessions = flexClient.getFlexSessions();
             int n = sessions.size();
             if (n > 1)
@@ -413,6 +417,8 @@ public abstract class BaseHTTPEndpoint extends AbstractEndpoint
                     }
                 }
             }
+            */
+            //log.warn("Bypass duplicate session error.");
         }
 
         // If more than one was found, remote host isn't using session cookies. Kill all duplicate sessions and return an error.
