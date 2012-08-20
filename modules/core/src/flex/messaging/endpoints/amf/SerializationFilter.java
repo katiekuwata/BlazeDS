@@ -23,6 +23,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
+//kkuwata: Added stopwatch
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import flex.messaging.FlexContext;
 import flex.messaging.MessageException;
 import flex.messaging.io.MessageDeserializer;
@@ -64,6 +68,9 @@ public class SerializationFilter extends AMFFilter
     private static final int UNHANDLED_ERROR = 10306;
     private static final int REQUEST_ERROR = 10307;
     private static final int RESPONSE_ERROR = 10308;
+
+    // kkuwata: Added stopwatch
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
 
     //--------------------------------------------------------------------------
     //
@@ -195,7 +202,19 @@ public class SerializationFilter extends AMFFilter
                     }
                     MessageSerializer serializer = sc.newMessageSerializer();
                     serializer.initialize(sc, outBuffer, debugTrace);
+
+                    // kkuwata: Added stopwatch
+                    long start = 0;
+                    if (Log.isWarn())
+                        start = System.currentTimeMillis();
+
                     serializer.writeMessage(respMesg);
+
+                    if (Log.isWarn()) {
+                        // kkuwata: Added stopwatch
+                        long end = System.currentTimeMillis();
+                        logger.warn(simpleDateFormat.format(new Date()) + " Serializing execution time = " + (end - start) + "ms");
+                    }
 
                     // keep track of serializes bytes for performance metrics
                     context.setSerializedBytes(outBuffer.size());
