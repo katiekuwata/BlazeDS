@@ -212,8 +212,7 @@ public class SerializationFilter extends AMFFilter
 
                     if (Log.isWarn()) {
                         // kkuwata: Added stopwatch
-                        long end = System.currentTimeMillis();
-                        logger.warn(simpleDateFormat.format(new Date()) + " Serializing execution time = " + (end - start) + "ms");
+                        logger.warn(simpleDateFormat.format(new Date()) + " Serializing execution time = " + (System.currentTimeMillis() - start) + "ms");
                     }
 
                     // keep track of serializes bytes for performance metrics
